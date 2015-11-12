@@ -55,22 +55,23 @@ function _Rat (json_params)
 		this.Members.SpeedFactor = null;  // Фактор, на кот умнож текущая скорость
 		this.Members.Step = null; // шаг скорости который будет прибавляться к текущей
 		this.Members.Color = null; // цвет... не знаю зачем, пока.
-		this.Members.AttackDistance = null; // дистанция атаки
+//		this.Members.AttackDistance = null; // дистанция атаки
 		this.Members.Damage = null; //
 		this.Members.DamageFactor = null; // фактор, на кот умножается 
 		this.Members.Target = null;
 		// положение X и Y берутся в Image
 		
-		this.Members.Status = null;
 		
+		this.Members.Status = null;
+		this.Members.AttackPoint = null;
 				/// Проработать установку значений по-умолчанию
 		if (json_params)
 		{
 			this.init(json_params);
 		}
 
-		this.Members.Image = new Konva.Image();
-		tihs.Members.Image.image(this.Members.ImgObjs.Default);		
+		this.Members.Image.image(this.Members.ImgObjs.Default);
+		this.Layer.add(this.Image);		
 }	
 ////////////////////////////////////////////////////////////
 // get/set members functions!!!!!!!!!!!!!!////////////////
@@ -85,6 +86,18 @@ _Rat.prototype.isDead = function ()
 		return 0;
 	}
 }
+
+_Rat.prototype.isGoing = function ()
+{
+	if (this.Status() == "Going")
+	{
+		return 1;
+	} else
+	{
+		return 0;
+	}
+}
+
 
 _Rat.prototype.Layer = function(Value)
 {
@@ -382,6 +395,8 @@ _Rat.prototype.isAtAttackDistance = function (json_params)
 }
 
 
+
+
 // передается массив с целями, которые еще присутствуют в игре:
 // данные вида {"Targets" : targets}
 
@@ -417,36 +432,35 @@ _Rat.prototype.selectTarget = function (json_params)
 	}
 }
 
-// в функцию передается {"Target": target}.
-//
-
-
+// данная функция рассчитывает и возвращает точку атаки, в которую нужно идти!
 _Rat.prototype.calculateAttackPoint = function (json_params)
 {
-	if (this.Target() != null)
+	if (json_params.Target() != null)
 	{
 		var toObj = {};
 		// вычисление координаты точки X
-		if (this.X() < this.Target().X())
+		if (this.X() < json_params.Target().X())
 		{
-			toObj.X = this.Target().X() - this.Width();
+			toObj.X = json_params.Target().X() - this.Width();
 		} else
 		{
-			toObj.X = this.Target().X() + this.Target.Width();
+			toObj.X = json_params.Target().X() + json_params.Target.Width();
 		} 
 		// вычисление координаты точки Y;
-		if (this.Y() < this.Target().Y())
+		if (this.Y() < json_params.Target().Y())
 		{
-			toObj.Y = this.Target().Y() - this.Height();
+			toObj.Y = json_params.Target().Y() - this.Height();
 		} else
 		{
-			toObj.Y = this.Target().Y() + this.Target.Height();
+			toObj.Y = json_params.Target().Y() + json_params.Target.Height();
 		} 
+		// время движения!
+		toObj.duration = Math.round(Math.sqrt(this.Target.X() - this.X()));
 		return toObj;
 		
 	} else
 	{
-		console.log("from _Rat.calculateAttackDistance: Нет цели!");
+		console.log("from _Rat.calculateAttackPoint: Нет цели!");
 	}
 }
 
@@ -580,7 +594,27 @@ _Rat.prototype.onClick = function ()
 
 //////////////////////////////////////////////////////
 /////////		!DOING FUNCTIONS 	///////////////////////
+
+// функция запускает 
+
 _Rat.prototype.comeTo = function (json_params)
+{
+		if (json_params)
+		{
+			if (json_params.Target)
+			{
+				var toXY = this.calculateAttackPoint(json_params);
+				this.Image.to({
+					x: toXY.X,// CheeseImage.x(),
+					y: toXY.Y,//CheeseImage.y(),
+					duration: 20
+				});
+			}
+		}
+}
+
+
+_Rat.prototype.comeTo2 = function (json_params)
 {
 	// заменить на пересечение картинок!
 	if (json_params){
