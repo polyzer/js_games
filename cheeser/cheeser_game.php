@@ -358,13 +358,7 @@ _Rat.prototype.Life = function (json_params)
 	{
 		// выбираем цель из полученного списка!
 		this.selectTarget(json_params);
-		if (this.isAtAttackDistance())
-		{
-			this.AttackTarget();
-		} else
-		{
-			this.comeTo({"Target" : this.Target()});
-		}
+		this.comeTo({"Target" : this.Target()});
 	}
 	else 
 	{
@@ -433,9 +427,14 @@ _Rat.prototype.selectTarget = function (json_params)
 }
 
 // данная функция рассчитывает и возвращает точку атаки, в которую нужно идти!
+// возвращается объект со следующими членами:
+// X - положение точки по оси X
+// Y - положение точки по оси Y
+// duration - время, за которое крысакан должен дойти до точки атаки!
+// данные параметры используются в Konva.Image.to()
 _Rat.prototype.calculateAttackPoint = function (json_params)
 {
-	if (json_params.Target() != null)
+	if (json_params.Target != null)
 	{
 		var toObj = {};
 		// вычисление координаты точки X
@@ -454,8 +453,9 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 		{
 			toObj.Y = json_params.Target().Y() + json_params.Target.Height();
 		} 
-		// время движения!
-		toObj.duration = Math.round(Math.sqrt(this.Target.X() - this.X()));
+		timeX = toObj.X - this.X();
+		timeY = toObj.Y - this.Y();
+		toObj.duration = Math.round(Math.sqrt(timeX * timeX + timeY * timeY) / this.Speed());
 		return toObj;
 		
 	} else
@@ -607,7 +607,7 @@ _Rat.prototype.comeTo = function (json_params)
 				this.Image.to({
 					x: toXY.X,// CheeseImage.x(),
 					y: toXY.Y,//CheeseImage.y(),
-					duration: 20
+					duration: toXY.duration
 				});
 			}
 		}
