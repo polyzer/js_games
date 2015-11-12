@@ -609,6 +609,8 @@ _Rat.prototype.comeTo = function (json_params)
 					y: toXY.Y,//CheeseImage.y(),
 					duration: toXY.duration
 				});
+				// устанавливаем статус на "Иду"
+				this.Status("Going");
 			}
 		}
 }
