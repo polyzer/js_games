@@ -71,7 +71,11 @@ function _Rat (json_params)
 		}
 
 		this.Members.Image.image(this.Members.ImgObjs.Default);
-		this.Layer.add(this.Image);		
+		this.Members.Image.rotate(3/2 * 180);
+		this.Layer.add(this.Image);
+		this.Members.Image.on('click', function () {
+			this.onClick();
+		});
 }	
 ////////////////////////////////////////////////////////////
 // get/set members functions!!!!!!!!!!!!!!////////////////
@@ -346,7 +350,7 @@ _Rat.prototype.init = function (json_params)
 	
 }
 
-
+// функция, вызываемая в основном цикле!
 _Rat.prototype.Life = function (json_params)
 {
 	// если я мертва - то ничего не делать!
@@ -358,16 +362,37 @@ _Rat.prototype.Life = function (json_params)
 	{
 		// выбираем цель из полученного списка!
 		this.selectTarget(json_params);
+		// поворачиваемся к цели!
+		this.turnToTarget({"Target" : this.Target()});
+		// идем к цели
 		this.comeTo({"Target" : this.Target()});
 	}
+	// если цель есть!
 	else 
 	{
-		this.comeTo({"Target" : this.Target()});
+		// если мы сейчас идем к цели - ничего не делаем...
+		if (this.isGoing())
+			return;
+		// если мы можем атаковать - атакуем....
+		if (this.isCanAttack())
+			this.AttackTarget({"Target" : this.Target()});
 	}
 	
 }
 
+_Rat.prototype.isCanAttack = function (json_params)
+{
+	if (this.Status() == "CanAttack")
+	{
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
 
+/*
+// на дистанции атаки!
 _Rat.prototype.isAtAttackDistance = function (json_params)
 {
 	if (this.Target() != null)
@@ -387,9 +412,7 @@ _Rat.prototype.isAtAttackDistance = function (json_params)
 			return 0;
 	}		
 }
-
-
-
+*/
 
 // передается массив с целями, которые еще присутствуют в игре:
 // данные вида {"Targets" : targets}
@@ -464,6 +487,7 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 	}
 }
 
+/*
 _Rat.prototype.calculateAttackDistance = function (json_params)
 {
 	if (this.Target() != null)
@@ -478,7 +502,7 @@ _Rat.prototype.calculateAttackDistance = function (json_params)
 		console.log("from _Rat.calculateAttackDistance: Нет цели!");
 	}
 }
-
+*/
 
 
 _Rat.prototype.increaseSpeed = function (json_params) 
@@ -490,6 +514,7 @@ _Rat.prototype.increaseSpeed = function (json_params)
 		}
 	}
 }
+
 // понижение скорости
 _Rat.prototype.reduceSpeed = function (json_params) 
 {
@@ -503,9 +528,10 @@ _Rat.prototype.reduceSpeed = function (json_params)
 // когда крыса убита
 _Rat.prototype.onKill = function (json_params) 
 {
-	this.Image(this.ImgObjs().Dead);
+	this.Image().image(this.ImgObjs().Dead);
+	this.Status("Dead");
 }
-
+// уменьшение здоровья!
 _Rat.prototype.reduceHealth = function (json_params)
 {
 	if (json_params)
@@ -515,7 +541,7 @@ _Rat.prototype.reduceHealth = function (json_params)
 		}
 	}
 }
-
+// прибавление здоровья!
 _Rat.prototype.increaseHealth = function (json_params)
 {
 	if(json_params)
@@ -526,7 +552,7 @@ _Rat.prototype.increaseHealth = function (json_params)
 	}
 }
 
-// когда атакуют крысу
+// когда крысакана атакуют
 _Rat.prototype.onAttackMe = function (json_params) 
 {
 	if (json_params)
@@ -538,16 +564,7 @@ _Rat.prototype.onAttackMe = function (json_params)
 	}
 }
 //атака цели
-
 _Rat.prototype.AttackTarget = function (json_params)
-{
-	if (this.Target() != null)
-	{
-		this.onAttackTarget({"Target": this.Target()});
-	}
-}
-
-_Rat.prototype.onAttackTarget = function (json_params) 
 {
 	if (json_params.Target)
 	{
@@ -558,23 +575,24 @@ _Rat.prototype.onAttackTarget = function (json_params)
 	}
 }
 
-//атака цели
+//поворот к цели!
 _Rat.prototype.turnToTarget = function (json_params) 
 {
 	if (json_params.Target)
 	{
-		this.Image().rotate(Math.atan2((json_params.Target.X() - this.X()), (json_params.Target.Y() - this.Y())));
+		this.Image().rotate(Math.atan2(json_params.Target.Y() - this.Y(), json_params.Target.X() - this.X()) / Math.PI * 180);
 	}
 }
 
+/*
 _Rat.prototype.startAttackAnim = function (json_params) 
 {
-	this.Image().image((this.ImgObjs().Attack));
+	this.Image().image(this.ImgObjs().Attack);
 }
 
 _Rat.prototype.stopAttackAnim = function (json_params) 
 {
-	this.Image().image((this.ImgObjs().Default));	
+	this.Image().image(this.ImgObjs().Default);	
 }
 
 _Rat.prototype.startDeadAnim = function (json_params) 
@@ -586,7 +604,7 @@ _Rat.prototype.stopDeadAnim = function (json_params)
 {
 	this.Image().image((this.ImgObjs().Dead));	
 }
-
+*/
 _Rat.prototype.onClick = function ()
 {
 	
@@ -611,11 +629,14 @@ _Rat.prototype.comeTo = function (json_params)
 				});
 				// устанавливаем статус на "Иду"
 				this.Status("Going");
+				setTimeout(function () {
+					this.Status("CanAttack");
+				}, toXY.duration * 1000);
 			}
 		}
 }
 
-
+/*
 _Rat.prototype.comeTo2 = function (json_params)
 {
 	// заменить на пересечение картинок!
@@ -642,7 +663,7 @@ _Rat.prototype.comeTo2 = function (json_params)
 		}
 	}
 }
-
+*/
 
 ////////////////////////		_Food 	//////////////////////////////
 function _Food (json_params) // это цель, за которой будут охотиться крысы!
