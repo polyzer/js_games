@@ -1111,8 +1111,8 @@ var InitDatas = {
 	_FloorHole : {
 		ImgObjs:{
 			Default: document.getElementById("FloorHole_img"),
-			Repaired: document.getElementById("FloorHole_img");
-		}
+			Repaired: document.getElementById("FloorHole_img")
+		},
 		Layer: MainLayer,
 		Status: "Open"
 	}
@@ -1133,7 +1133,7 @@ function createHole(InitDatas, FloorHoles, W, H)
 	InitDatas._FloorHole.X = Math.random() * (W - 100);
 	InitDatas._FloorHole.Y = Math.random() * (H - 100);
 	// добавляем дыру в массив!!!
-	FloorHoles.push(new _FloorHole(InitDatas._FloorHole);
+	FloorHoles.push(new _FloorHole(InitDatas._FloorHole));
 }
 
 function createRat(InitDatas, FloorHoles, Rats)
