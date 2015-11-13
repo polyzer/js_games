@@ -836,7 +836,7 @@ _Food.prototype.isEaten = function ()
 // когда пищу съели
 _Food.prototype.onKill = function (json_params) 
 {
-	this.startDeadAnim();
+	this.Members.Image().image(this.Members.ImgObjs().Eaten);
 	this.Status("Eaten");
 }
 
@@ -845,8 +845,8 @@ _Food.prototype.reduceHealth = function (json_params)
 {
 	if (json_params)
 	{
-		if(json_params.ReduceValue){
-				this.Health(this.Health() - json_params.ReduceValue);	
+		if(json_params.Damage){
+				this.Health(this.Health() - json_params.Damage);	
 		}
 	}
 }
@@ -864,14 +864,13 @@ _Food.prototype.increaseHealth = function (json_params)
 
 // параметры:
 // Damage -- который будет нанесен еде.
-
 _Food.prototype.onAttackMe = function (json_params)
 {
 	if (json_params)
 	{
 		if (json_params.Damage)
 		{
-			this.obtainDamage(json_params);
+			this.reduceHealth(json_params);
 		}
 	}	
 }
@@ -1212,7 +1211,7 @@ var Weapon = null; // это оружие
 
 var InitDatas = {
 	_Rat : {
-		Health: 100,
+		Health: 170,
 		ImgObjs: {
 			Default: document.getElementById("Rat_img"),
 			Dead: document.getElementById("RatDead_img"),
@@ -1232,7 +1231,7 @@ var InitDatas = {
 		Health: 200,
 		ImgObjs: {
 			Default: document.getElementById("Cheese_img"),
-			Eaten: document.getElementById("Crumbs_img")
+			Eaten: document.getElementById("Crumbs_img"),
 		},
 		Status: "NotEaten",
 		Layer: MainLayer
