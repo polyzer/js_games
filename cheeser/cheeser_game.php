@@ -371,11 +371,12 @@ _Rat.prototype.Life = function (json_params)
 	else 
 	{
 		// если мы сейчас идем к цели - ничего не делаем...
+		if (this.Target().
 		if (this.isGoing())
 			return;
 		// если мы можем атаковать - атакуем....
 		if (this.isCanAttack())
-			this.AttackTarget({"Target" : this.Target()});
+			this.attackTarget({"Target" : this.Target()});
 	}
 	
 }
@@ -564,7 +565,7 @@ _Rat.prototype.onAttackMe = function (json_params)
 	}
 }
 //атака цели
-_Rat.prototype.AttackTarget = function (json_params)
+_Rat.prototype.attackTarget = function (json_params)
 {
 	if (json_params.Target)
 	{
@@ -576,6 +577,7 @@ _Rat.prototype.AttackTarget = function (json_params)
 }
 
 //поворот к цели!
+// данная функция вызывается в _Rat.comeTo
 _Rat.prototype.turnToTarget = function (json_params) 
 {
 	if (json_params.Target)
@@ -605,9 +607,15 @@ _Rat.prototype.stopDeadAnim = function (json_params)
 	this.Image().image((this.ImgObjs().Dead));	
 }
 */
-_Rat.prototype.onClick = function ()
+_Rat.prototype.onClick = function (json_params)
 {
-	
+	if(json_params)
+	{
+		if(json_params.Weapon)
+		{
+			json_params.Weapon.attackTarget({"Target" : this});
+		}
+	}
 }
 
 //////////////////////////////////////////////////////
@@ -812,11 +820,24 @@ _Food.prototype.init = function (json_params)
 	}
 }
 
+// если пища съедена!
+_Food.prototype.isEaten = function ()
+{
+	if(this.Status() == "Eaten")
+	{
+		return 1;
+	} else
+	{
+		return 0;
+	}
+}
+
 
 // когда пищу съели
 _Food.prototype.onKill = function (json_params) 
 {
 	this.startDeadAnim();
+	this.Status("Eaten");
 }
 
 // уменьшение жизни
