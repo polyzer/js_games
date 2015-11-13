@@ -1018,6 +1018,8 @@ function _FloorHole (json_params)
 	this.Members.Timers = {};
 	this.Members.Timers.ratCreationTime = null;
 	
+	this.Members.Rats = null;
+	
 	if (json_params)
 	{
 		this.init(json_params);
@@ -1109,23 +1111,43 @@ _FloorHole.prototype.init = function (json_params)
 		}
 		if (json_params.X)
 		{
-			this.X(json_params.X); // здоровье, которое будет убывать, когда мы будем их бить.
+			this.X(json_params.X);
 		}
 		if (json_params.Y)
 		{
-			this.Y(json_params.Y); // здоровье, которое будет убывать, когда мы будем их бить.
+			this.Y(json_params.Y); 
 		}
 		if (json_params.Image)
 		{
-			this.Image(json_params.Image); // здоровье, которое будет убывать, когда мы будем их бить.
+			this.Image(json_params.Image); 
 		}
 		if (json_params.Layer)
 		{
-			this.Layer(json_params.Layer); // здоровье, которое будет убывать, когда мы будем их бить.
+			this.Layer(json_params.Layer); 
+		}
+		if (json_params.Rats)
+		{
+			this.Rats = json_params.Rats; // массив
 		}
 
 	}
 }
+
+// функция создания мышей!
+_FloorHole.prototype.createRat = function (json_params)
+{
+	this.ratCreationTimer = setTimeout(
+		function () 
+		{
+			InitDatas._Rat.X = this.X();
+			InitDatas._Rat.Y = this.Y();
+			// добавление крысы
+			this.Rats.push(new _Rat(InitDatas._Rat));
+		},
+		(Math.random() * 10 + 5) * 1000
+	);
+}
+
 
 // обработка нажатия на картинку дыры
 _FloorHole.prototype.onClick = function ()
@@ -1136,6 +1158,7 @@ _FloorHole.prototype.onClick = function ()
 // обработка закалачивания
 _FloorHole.prototype.onRepaired = function (json_params)
 {
+	clearTimeout(this.ratCreationTimer);
 	this.Image().image(this.ImgObjs().Repaired);
 	this.Status("Repaired");
 }
