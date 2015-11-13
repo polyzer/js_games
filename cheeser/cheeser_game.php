@@ -676,7 +676,7 @@ function _Food (json_params) // это цель, за которой будут 
 		this.Members.ImgObjs.Damage = null;
 		this.Members.ImgObjs.Eaten = null;
 		
-		this.Members.Image = null; // изображение, которое будет перемещаться по экрану. в Konva здесь уже содержатся все необходимые значения 
+		this.Members.Image = new Konva.Image(); // изображение, которое будет перемещаться по экрану. в Konva здесь уже содержатся все необходимые значения 
 		this.Members.Layer = null;
 
 		this.Members.Health = null;
@@ -689,6 +689,14 @@ function _Food (json_params) // это цель, за которой будут 
 		{
 				this.init(json_params);
 		}
+		
+		// установка стандартной картинки!
+		this.Members.Image.image(this.Members.ImgObjs.Default);
+		this.Layer.add(this.Image);
+		this.Members.Image.on('click', function () {
+			this.onClick();
+		});
+
 }	
 // убавление здоровья
 // получение ущерба
@@ -1004,16 +1012,22 @@ function _FloorHole (json_params)
 	this.Members.ImgObjs.Repaired = null;
 	
 	this.Members.Image = null;
-	
 	this.Members.Layer = null;
-	
 	this.Members.Status = null; // статус
+	
+	this.Members.Timers = {};
+	this.Members.Timers.ratCreationTime = null;
 	
 	if (json_params)
 	{
 		this.init(json_params);
 	}
-	
+	this.Members.Image.image(this.Members.ImgObjs.Default);
+	this.Layer.add(this.Image);
+	this.Members.Image.on('click', function () {
+		this.onClick();
+	});
+
 };
 
 _FloorHole.prototype.ImgObjs = function (Value) 
@@ -1113,13 +1127,19 @@ _FloorHole.prototype.init = function (json_params)
 	}
 }
 
+// обработка нажатия на картинку дыры
+_FloorHole.prototype.onClick = function ()
+{
+	this.onRepaired();
+}
 
+// обработка закалачивания
 _FloorHole.prototype.onRepaired = function (json_params)
 {
 	this.Image().image(this.ImgObjs().Repaired);
 	this.Status("Repaired");
 }
-
+// возвращает, заколочено или нет!
 _FloorHole.prototype.isRepaired = function ()
 {
 		if (this.Status() == "Repaired")
@@ -1212,7 +1232,11 @@ function createFood(InitDatas, Foods, W, H)
 
 function GameProcess ()
 {
-	if (
+	// 
+	for(var i = 0; i < FloorHoles.length; i++)
+	{
+		
+	}
 }	
 
 function GameInit()
