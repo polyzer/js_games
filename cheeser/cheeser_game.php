@@ -1141,7 +1141,7 @@ _FloorHole.prototype.createRat = function (json_params)
 		{
 			InitDatas._Rat.X = this.X();
 			InitDatas._Rat.Y = this.Y();
-			// добавление крысы
+			// добавление крысы 
 			this.Rats.push(new _Rat(InitDatas._Rat));
 		},
 		(Math.random() * 10 + 5) * 1000
@@ -1175,6 +1175,15 @@ _FloorHole.prototype.isRepaired = function ()
 }
 
 var MainLayer = new Konva.Layer();
+// массивы
+var Rats = [];
+var FloorHoles = [];
+var Foods = [];
+
+// нужен только один экземпляр.
+// по умолчанию объект Weapon будет
+// создавать из класса _Hammer
+var Weapon = null; // это оружие
 
 
 var InitDatas = {
@@ -1214,18 +1223,10 @@ var InitDatas = {
 			Repaired: document.getElementById("FloorHole_img")
 		},
 		Layer: MainLayer,
-		Status: "Open"
+		Status: "Open",
+		Rats: Rats
 	}
 };
-
-// массивы
-
-
-var Rats = [];
-var FloorHoles = [];
-var Foods = [];
-
-var CreateHolesTime = 5000 //миллисекунд создается дыра в полу
 
 function createHole(InitDatas, FloorHoles, W, H)
 {
@@ -1253,25 +1254,34 @@ function createFood(InitDatas, Foods, W, H)
 	Foods.push(new _Food(InitDatas._Foods));
 }
 
+// функция обработки игрового процесса!
+// будет вызываться постоянно!
+// если вся пища съедена - конец игры
 function GameProcess ()
 {
 	// 
 	for(var i = 0; i < FloorHoles.length; i++)
 	{
-		
+		// если какая-то из дыр заколочена - удаляем из массива ее!
+		if (FloorHoles[i].Status() == "Repaired")
+		{
+			FloorHoles.splice(i,1);
+		} else
+		if (FloohHoles[i].Status() == "Open")
+		{
+		}
 	}
 }	
 
+// инициализация игры
+// создание пищи, первой дыры в полу!
 function GameInit()
 {
 	if (Foods.length == 0)
 	{
 		createFood(InitDatas, Foods, W, H);
 	}
-	setTimeout(function () {
-		createRat(InitDatas, FloorHoles, Rats);
-	},
-	6000);	
+	Weapon = new _Hammer(InitDatas._Hammer);
 }
 	
 function Game() {
