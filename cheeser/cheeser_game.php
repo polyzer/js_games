@@ -1332,12 +1332,14 @@ function GameInit()
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
 }
+
+	var W = 2000;
+	var H = 2000;
+
 	
 function Game() {
 
 
-	var W = 2000;
-	var H = 2000;
 
 	var GameContainer;
 	GameContainer = document.createElement("div");
@@ -1359,7 +1361,9 @@ function Game() {
 	MainLayer.draw();
 	
 	// GameProcess
-
+	GameInit();
+	setInterval(GameProcess,
+	1000);
 	
 	
 	
