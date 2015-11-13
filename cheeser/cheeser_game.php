@@ -1139,13 +1139,16 @@ _FloorHole.prototype.createRat = function (json_params)
 	this.ratCreationTimer = setTimeout(
 		function () 
 		{
-			InitDatas._Rat.X = this.X();
-			InitDatas._Rat.Y = this.Y();
+			json_params.InitDatas._Rat.X = this.X();
+			json_params.InitDatas._Rat.Y = this.Y();
 			// добавление крысы 
-			this.Rats.push(new _Rat(InitDatas._Rat));
+			this.Rats.push(new _Rat(json_params.InitDatas._Rat));
+			// возвращаем статус на открыта!
+			this.Status("Open");
 		},
 		(Math.random() * 10 + 5) * 1000
 	);
+	this.Status("RatCreating");
 }
 
 
@@ -1267,8 +1270,10 @@ function GameProcess ()
 		{
 			FloorHoles.splice(i,1);
 		} else
-		if (FloohHoles[i].Status() == "Open")
+		// если какая-то из дыр открыта!
+		if (FloorHoles[i].Status() == "Open")
 		{
+			FloorHoles[i].createRat();
 		}
 	}
 }	
