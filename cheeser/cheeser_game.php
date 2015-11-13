@@ -370,8 +370,12 @@ _Rat.prototype.Life = function (json_params)
 	// если цель есть!
 	else 
 	{
+		// если мы доели пищу - обнуляем ее, и ищем новую!
+		if (this.Target().isEaten())
+		{
+			this.Target(null);
+		}
 		// если мы сейчас идем к цели - ничего не делаем...
-		if (this.Target().
 		if (this.isGoing())
 			return;
 		// если мы можем атаковать - атакуем....
@@ -533,6 +537,7 @@ _Rat.prototype.onKill = function (json_params)
 	this.Status("Dead");
 }
 // уменьшение здоровья!
+// и проверка, установление смерти!
 _Rat.prototype.reduceHealth = function (json_params)
 {
 	if (json_params)
@@ -540,6 +545,10 @@ _Rat.prototype.reduceHealth = function (json_params)
 		if(json_params.ReduceValue){
 				this.Health(this.Health() - json_params.ReduceValue);	
 		}
+	}
+	if (this.Health <= 0)
+	{
+		this.onKill();
 	}
 }
 // прибавление здоровья!
@@ -834,13 +843,14 @@ _Food.prototype.isEaten = function ()
 
 
 // когда пищу съели
-_Food.prototype.onKill = function (json_params) 
+_Food.prototype.onEaten = function (json_params) 
 {
 	this.Members.Image().image(this.Members.ImgObjs().Eaten);
 	this.Status("Eaten");
 }
 
 // уменьшение жизни
+// 
 _Food.prototype.reduceHealth = function (json_params)
 {
 	if (json_params)
@@ -848,6 +858,10 @@ _Food.prototype.reduceHealth = function (json_params)
 		if(json_params.Damage){
 				this.Health(this.Health() - json_params.Damage);	
 		}
+	}
+	if (this.Health() <= 0)
+	{
+		this.onEaten();
 	}
 }
 // увеличение здоровья
@@ -1296,6 +1310,16 @@ function GameProcess ()
 			FloorHoles[i].createRat();
 		}
 	}
+	
+	for(var i = 0; i < Rats.length; i++)
+	{
+		if (Rats[i].Status() == "Dead")
+		{
+			Rats.splice(i, 1);
+		} else
+			Rats[i].Life();
+	}
+	
 }	
 
 // инициализация игры
