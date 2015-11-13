@@ -708,9 +708,9 @@ function _Food (json_params) // это цель, за которой будут 
 		}
 		
 		// установка стандартной картинки!
-		this.Members.Image.image(this.Members.ImgObjs.Default);
-		this.Layer.add(this.Image);
-		this.Members.Image.on('click', function () {
+		this.Image().image(this.Members.ImgObjs.Default);
+		this.Layer().add(this.Image());
+		this.Image().on('click', function () {
 			this.onClick();
 		});
 
@@ -1285,8 +1285,8 @@ function createRat(InitDatas, FloorHoles, Rats)
 
 function createFood(InitDatas, Foods, W, H)
 {
-	InitDatas._Foods.X = Math.random() * W;
-	InitDatas._Foods.Y = Math.random() * H;
+	InitDatas._Food.X = Math.random() * W;
+	InitDatas._Food.Y = Math.random() * H;
 	
 	Foods.push(new _Food(InitDatas._Foods));
 }
