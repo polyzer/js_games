@@ -30,11 +30,11 @@ body img
 
 <script>
 
+
 ////////////////////////////	____CLASSES_______ //////////
 
 ////////////////////////////		_Rat class /////////////////
 // принимает параметры:
-// EmergenceCoords - координаты появления;
 // 
 function _Rat (json_params) 
 {
@@ -277,6 +277,7 @@ _Rat.prototype.Status = function (Value)
 	if (Value)
 	{
 		this.Members.Status = Value;
+		console.log(this.constructor.name + " " + this.Members.Status);
 	} else
 	{
 		return this.Members.Status;
@@ -394,12 +395,11 @@ _Rat.prototype.Life = function (json_params)
 	if (this.isDead())
 		return;
 	// если у нас нет цели, то выбирваем!	
-	if (this.Members.Target == null)
+	if (this.Target() == null)
 	{
 		// выбираем цель из полученного списка!
 		this.selectTarget(json_params);
 		// поворачиваемся к цели!
-		window.alert(this.Members.Target);
 		this.turnToTarget({"Target" : this.Target()});
 		// идем к цели
 		this.comeTo({"Target" : this.Target()});
@@ -409,7 +409,6 @@ _Rat.prototype.Life = function (json_params)
 		if(this.Status() == "Live")
 		{
 		// поворачиваемся к цели!
-		window.alert(this.Target());
 		this.turnToTarget({"Target" : this.Target()});
 		// идем к цели
 		this.comeTo({"Target" : this.Target()});
@@ -417,7 +416,7 @@ _Rat.prototype.Life = function (json_params)
 		// если мы доели пищу - обнуляем ее, и ищем новую!		
 		if (this.Target().isEaten())
 		{
-			this.Members.Target = null;
+			this.Target(null);
 			this.Status("Live");
 		} else
 		// если мы сейчас идем к цели - ничего не делаем...
@@ -426,7 +425,6 @@ _Rat.prototype.Life = function (json_params)
 		} else
 		// если мы можем атаковать - атакуем....
 		if (this.isCanAttack()){
-			window.alert("CanATTACK");
 			this.attackTarget({"Target" : this.Target()});
 		}
 	}
@@ -522,7 +520,6 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 			toObj.X = json_params.Target.X() + json_params.Target.Width();
 		} 
 		// вычисление координаты точки Y;
-		window.alert(this.Height());
 		
 		if (this.Y() < json_params.Target.Y())
 		{
@@ -626,13 +623,12 @@ _Rat.prototype.onAttackMe = function (json_params)
 //атака цели
 _Rat.prototype.attackTarget = function (json_params)
 {
-	window.alert("From AttackTarget");
 	if (json_params.Target)
 	{
 		json_params.Target.onAttackMe({"Damage" : this.Damage() * this.DamageFactor()});
 	} else
 	{
-		console.log("from _Rat.onAttackTarget: Нет цели!");
+		console.log(this.constructor.name + ".onAttackTarget: Нет цели!");
 	}
 }
 
@@ -865,6 +861,7 @@ _Food.prototype.Status = function (Value)
 	if (Value)
 	{
 		this.Members.Status = Value;
+		console.log(this.constructor.name + " " + this.Members.Status);
 	} else
 	{
 		return this.Members.Status;
@@ -933,7 +930,7 @@ _Food.prototype.reduceHealth = function (json_params)
 	{
 		if(json_params.Damage){
 				this.Health(this.Health() - json_params.Damage);	
-				window.alert("this Health: " + this.Health());
+				console.log(this.constructor.name + ": " + this.Health());
 		}
 	}
 	
@@ -1144,8 +1141,7 @@ function _FloorHole (json_params)
 		this.onClick();
 	});
 	this.Layer().draw();
-
-	console.log("_FloorHole: Я родился");
+	console.log(this.constructor.name + ": Я родился");
 };
 
 _FloorHole.prototype.ImgObjs = function (Value) 
@@ -1207,6 +1203,7 @@ _FloorHole.prototype.Status = function (Value)
 	if (Value)
 	{
 		this.Members.Status = Value;
+		console.log(this.constructor.name + ": " + this.Members.Status);
 	} else
 	{
 		return this.Members.Status;
@@ -1417,6 +1414,7 @@ function GameProcess ()
 			Foods.splice(i, 1);
 		}
 	}
+	MainLayer.draw();
 }	
 
 // инициализация игры
@@ -1429,6 +1427,7 @@ function GameInit()
 	}
 	if (FloorHoles.length == 0)
 	{
+		createFloorHole(InitDatas, FloorHoles, W, H);
 		createFloorHole(InitDatas, FloorHoles, W, H);
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
