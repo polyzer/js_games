@@ -107,7 +107,7 @@ _Rat.prototype.isGoing = function ()
 
 _Rat.prototype.Layer = function(Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Layer = Value;
 	} else
@@ -119,7 +119,7 @@ _Rat.prototype.Layer = function(Value)
 
 _Rat.prototype.Speed = function(Speed)
 {
-	if (Speed)
+	if (Speed !== undefined)
 	{
 		this.Members.Speed = Speed;
 	} else
@@ -130,7 +130,7 @@ _Rat.prototype.Speed = function(Speed)
 
 _Rat.prototype.SpeedLimit = function(SpeedLimit)
 {
-	if (SpeedLimit)
+	if (SpeedLimit !== undefined)
 	{
 		this.Members.SpeedLimit = SpeedLimit;
 	} else
@@ -141,7 +141,7 @@ _Rat.prototype.SpeedLimit = function(SpeedLimit)
 
 _Rat.prototype.SpeedFactor = function(Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.SpeedFactor = Value;
 	} else
@@ -153,7 +153,7 @@ _Rat.prototype.SpeedFactor = function(Value)
 
 _Rat.prototype.Step = function(Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Step = Value;
 	} else
@@ -164,7 +164,7 @@ _Rat.prototype.Step = function(Value)
 
 _Rat.prototype.X = function (X)
 {
-	if (X)
+	if (X !== undefined)
 	{
 		this.Members.Image.x(X);
 	} else
@@ -174,7 +174,7 @@ _Rat.prototype.X = function (X)
 }
 _Rat.prototype.Y = function (Y)
 {
-	if (Y)
+	if (Y !== undefined)
 	{
 		this.Members.Image.y(Y);
 	} else
@@ -185,7 +185,7 @@ _Rat.prototype.Y = function (Y)
 
 _Rat.prototype.Health = function (Health)
 {
-	if (Health)
+	if (Health !== undefined)
 	{
 		this.Members.Health = Health;
 	} else
@@ -196,7 +196,7 @@ _Rat.prototype.Health = function (Health)
 
 _Rat.prototype.Height = function (Height)
 {
-	if (Height)
+	if (Height !== undefined)
 	{
 		this.Members.Image.height(Height);
 	} else
@@ -207,7 +207,7 @@ _Rat.prototype.Height = function (Height)
 
 _Rat.prototype.Width = function (Width)
 {
-	if (Width)
+	if (Width !== undefined)
 	{
 		this.Members.Image.width(Width);
 	} else
@@ -218,7 +218,7 @@ _Rat.prototype.Width = function (Width)
 
 _Rat.prototype.Damage = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Damage = Value;
 	} else
@@ -229,7 +229,7 @@ _Rat.prototype.Damage = function (Value)
 
 _Rat.prototype.DamageFactor = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.DamageFactor = Value;
 	} else
@@ -240,7 +240,7 @@ _Rat.prototype.DamageFactor = function (Value)
 
 _Rat.prototype.AttackDistance = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.AttackDistance = Value;
 	}else
@@ -252,7 +252,7 @@ _Rat.prototype.AttackDistance = function (Value)
 
 _Rat.prototype.ImgObjs = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.ImgObjs = Value;
 	}else
@@ -263,7 +263,7 @@ _Rat.prototype.ImgObjs = function (Value)
 
 _Rat.prototype.Image = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Image = Value;
 	}else
@@ -274,7 +274,7 @@ _Rat.prototype.Image = function (Value)
 
 _Rat.prototype.Status = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Status = Value;
 		console.log(this.constructor.name + " " + this.Members.Status);
@@ -286,7 +286,7 @@ _Rat.prototype.Status = function (Value)
 
 _Rat.prototype.Target = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Target = Value;
 	} else
@@ -397,6 +397,14 @@ _Rat.prototype.Life = function (json_params)
 	// если у нас нет цели, то выбирваем!	
 	if (this.Target() == null)
 	{
+		if (json_params.Targets !== undefined)
+		{
+			if (json_params.Targets.length == 0)
+			{
+				console.log(this.constructor.name + ": have no food....");
+				return;
+			}
+		}
 		// выбираем цель из полученного списка!
 		this.selectTarget(json_params);
 		// поворачиваемся к цели!
@@ -470,10 +478,11 @@ _Rat.prototype.isAtAttackDistance = function (json_params)
 
 _Rat.prototype.selectTarget = function (json_params)
 {	
-	if (json_params) // если есть входные параметры
+	if (json_params !== undefined) // если есть входные параметры
 	{
-		if (json_params.Targets) //если есть массив с целями
+		if (json_params.Targets !== undefined) //если есть массив с целями
 		{
+		console.log(this.constructor.name + ": selecting Target from " + json_params.Targets.length);
 			if (json_params.Targets.length == 0){ // если в массиве нет
 				
 				console.log("from _Rat.selectTarget: Targets array is empty!!!!");
@@ -508,7 +517,7 @@ _Rat.prototype.selectTarget = function (json_params)
 // данные параметры используются в Konva.Image.to()
 _Rat.prototype.calculateAttackPoint = function (json_params)
 {
-	if (json_params.Target != null)
+	if (json_params.Target !== undefined)
 	{
 		var toObj = {};
 		// вычисление координаты точки X
@@ -559,9 +568,9 @@ _Rat.prototype.calculateAttackDistance = function (json_params)
 
 _Rat.prototype.increaseSpeed = function (json_params) 
 {
-	if(json_params)
+	if(json_params !== undefined)
 	{
-		if(json_params.IncreaseValue){
+		if(json_params.IncreaseValue !== undefined){
 				this.Speed(this.Speed() + json_params.IncreaseValue);	
 		}
 	}
@@ -570,7 +579,7 @@ _Rat.prototype.increaseSpeed = function (json_params)
 // понижение скорости
 _Rat.prototype.reduceSpeed = function (json_params) 
 {
-	if(json_params)
+	if(json_params !== undefined)
 	{
 		if(json_params.ReduceValue){
 				this.Speed(this.Speed() - json_params.ReduceValue);	
@@ -587,9 +596,9 @@ _Rat.prototype.onKill = function (json_params)
 // и проверка, установление смерти!
 _Rat.prototype.reduceHealth = function (json_params)
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{
-		if(json_params.ReduceValue){
+		if(json_params.ReduceValue !== undefined){
 				this.Health(this.Health() - json_params.ReduceValue);	
 		}
 	}
@@ -612,7 +621,7 @@ _Rat.prototype.increaseHealth = function (json_params)
 // когда крысакана атакуют
 _Rat.prototype.onAttackMe = function (json_params) 
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{
 		if (json_params.Damage)
 		{
@@ -623,7 +632,7 @@ _Rat.prototype.onAttackMe = function (json_params)
 //атака цели
 _Rat.prototype.attackTarget = function (json_params)
 {
-	if (json_params.Target)
+	if (json_params.Target !== undefined)
 	{
 		json_params.Target.onAttackMe({"Damage" : this.Damage() * this.DamageFactor()});
 	} else
@@ -636,7 +645,8 @@ _Rat.prototype.attackTarget = function (json_params)
 // данная функция вызывается в _Rat.comeTo
 _Rat.prototype.turnToTarget = function (json_params) 
 {
-	if (json_params.Target)
+	this.Image().rotation(3/2 * 180);
+	if (json_params.Target !== undefined)
 	{
 		this.Image().rotate(Math.atan2(json_params.Target.Y() - this.Y(), json_params.Target.X() - this.X()) / Math.PI * 180);
 	}
@@ -665,9 +675,9 @@ _Rat.prototype.stopDeadAnim = function (json_params)
 */
 _Rat.prototype.onClick = function (json_params)
 {
-	if(json_params)
+	if(json_params !== undefined)
 	{
-		if(json_params.Weapon)
+		if(json_params.Weapon !== undefined)
 		{
 			json_params.Weapon.attackTarget({"Target" : this});
 		}
@@ -770,7 +780,7 @@ function _Food (json_params) // это цель, за которой будут 
 
 _Food.prototype.Image = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Image = Value;
 	}else
@@ -782,7 +792,7 @@ _Food.prototype.Image = function (Value)
 
 _Food.prototype.ImgObjs = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.ImgObjs = Value;
 	}else
@@ -793,7 +803,7 @@ _Food.prototype.ImgObjs = function (Value)
 
 _Food.prototype.X = function (X)
 {
-	if (X)
+	if (X !== undefined)
 	{
 		this.Members.Image.x(X);
 	} else
@@ -803,7 +813,7 @@ _Food.prototype.X = function (X)
 }
 _Food.prototype.Y = function (Y)
 {
-	if (Y)
+	if (Y !== undefined)
 	{
 		this.Members.Image.y(Y);
 	} else
@@ -814,7 +824,7 @@ _Food.prototype.Y = function (Y)
 
 _Food.prototype.Health = function (Health)
 {
-	if (Health)
+	if (Health !== undefined)
 	{
 		this.Members.Health = Health;
 	} else
@@ -825,7 +835,7 @@ _Food.prototype.Health = function (Health)
 
 _Food.prototype.Layer = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Layer = Value;
 	} else
@@ -836,7 +846,7 @@ _Food.prototype.Layer = function (Value)
 
 _Food.prototype.Height = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Image.height(Value);
 	} else
@@ -847,7 +857,7 @@ _Food.prototype.Height = function (Value)
 
 _Food.prototype.Width = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Image.width(Value);
 	} else
@@ -858,7 +868,7 @@ _Food.prototype.Width = function (Value)
 
 _Food.prototype.Status = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Status = Value;
 		console.log(this.constructor.name + " " + this.Members.Status);
@@ -872,31 +882,31 @@ _Food.prototype.Status = function (Value)
 _Food.prototype.init = function (json_params)
 {
 	
-	if (json_params.X)
+	if (json_params.X !== undefined)
 	{
 		this.X(json_params.X);
 	}
-	if (json_params.Y)
+	if (json_params.Y !== undefined)
 	{
 		this.Y(json_params.Y);
 	}
-	if (json_params.Health)
+	if (json_params.Health !== undefined)
 	{
 		this.Health(json_params.Health);
 	}		
-	if (json_params.Layer)
+	if (json_params.Layer !== undefined)
 	{
 		this.Layer(json_params.Layer);
 	}	
-	if (json_params.ImgObjs)
+	if (json_params.ImgObjs !== undefined)
 	{
 		this.ImgObjs(json_params.ImgObjs);
 	}
-	if (json_params.Image)
+	if (json_params.Image !== undefined)
 	{
 		this.Image(json_params.Image);
 	}
-	if (json_params.Status)
+	if (json_params.Status !== undefined)
 	{
 		this.Status(json_params.Status);
 	}
@@ -926,9 +936,9 @@ _Food.prototype.onEaten = function (json_params)
 // 
 _Food.prototype.reduceHealth = function (json_params)
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{
-		if(json_params.Damage){
+		if(json_params.Damage !== undefined){
 				this.Health(this.Health() - json_params.Damage);	
 				console.log(this.constructor.name + ": " + this.Health());
 		}
@@ -942,9 +952,9 @@ _Food.prototype.reduceHealth = function (json_params)
 // увеличение здоровья
 _Food.prototype.increaseHealth = function (json_params)
 {
-	if(json_params)
+	if(json_params !== undefined)
 	{
-		if(json_params.IncreaseValue){
+		if(json_params.IncreaseValue !== undefined){
 				this.Health(this.Health() + json_params.IncreaseValue);	
 		}
 	}
@@ -955,9 +965,9 @@ _Food.prototype.increaseHealth = function (json_params)
 // Damage -- который будет нанесен еде.
 _Food.prototype.onAttackMe = function (json_params)
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{
-		if (json_params.Damage)
+		if (json_params.Damage !== undefined)
 		{
 			this.reduceHealth(json_params);
 		}
@@ -994,7 +1004,7 @@ function _Hammer (json_params)
 
 _Hammer.prototype.ImgObjs = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.ImgObjs = Value;
 	}else
@@ -1005,7 +1015,7 @@ _Hammer.prototype.ImgObjs = function (Value)
 
 _Hammer.prototype.Image = function (Image) 
 {
-		if (Image)
+		if (Image !== undefined)
 		{
 			this.Members.Image.image(Image);
 		}else
@@ -1016,7 +1026,7 @@ _Hammer.prototype.Image = function (Image)
 
 _Hammer.prototype.Damage = function (Value) 
 {
-		if (Value)
+		if (Value !== undefined)
 		{
 			this.Members.Damage = Value;
 		}else
@@ -1027,7 +1037,7 @@ _Hammer.prototype.Damage = function (Value)
 
 _Hammer.prototype.DamageFactor = function (Value) 
 {
-		if (Value)
+		if (Value !== undefined)
 		{
 			this.Members.DamageFactor = Value;
 		}else
@@ -1038,7 +1048,7 @@ _Hammer.prototype.DamageFactor = function (Value)
 
 _Hammer.prototype.Status = function (Value) 
 {
-		if (Value)
+		if (Value !== undefined)
 		{
 			this.Members.Status = Value;
 		}else
@@ -1049,7 +1059,7 @@ _Hammer.prototype.Status = function (Value)
 
 _Hammer.prototype.Health = function (Value) 
 {
-		if (Value)
+		if (Value !== undefined)
 		{
 			this.Members.Health = Value;
 		}else
@@ -1060,29 +1070,29 @@ _Hammer.prototype.Health = function (Value)
 
 _Hammer.prototype.init = function (json_params)
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{	
-		if (json_params.ImgObjs)
+		if (json_params.ImgObjs !== undefined)
 		{
 			this.ImgObjs(json_params.ImgObjs); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.Status)
+		if (json_params.Status !== undefined)
 		{
 			this.Status(json_params.Status); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.Image)
+		if (json_params.Image !== undefined)
 		{
 			this.Image(json_params.Image); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.Layer)
+		if (json_params.Layer !== undefined)
 		{
 			this.Layer(json_params.Layer); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.Damage)
+		if (json_params.Damage !== undefined)
 		{
 			this.Damage(json_params.Damage); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.DamageFactor)
+		if (json_params.DamageFactor !== undefined)
 		{
 			this.DamageFactor(json_params.DamageFactor); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
@@ -1092,9 +1102,9 @@ _Hammer.prototype.init = function (json_params)
 
 _Hammer.prototype.attackTarget = function (json_params) 
 {
-	if(json_params)
+	if(json_params !== undefined)
 	{
-		if(json_params.Target)
+		if(json_params.Target !== undefined)
 		{
 			json_params.Target.onAttackMe({"Damage": this.Damage() * this.DamageFactor()});
 		}
@@ -1146,7 +1156,7 @@ function _FloorHole (json_params)
 
 _FloorHole.prototype.ImgObjs = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.ImgObjs = Value;
 	}else
@@ -1157,7 +1167,7 @@ _FloorHole.prototype.ImgObjs = function (Value)
 
 _FloorHole.prototype.Image = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Image = Value;
 	}else
@@ -1168,7 +1178,7 @@ _FloorHole.prototype.Image = function (Value)
 
 _FloorHole.prototype.Layer = function (Value) 
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Layer = Value;
 	}else
@@ -1179,7 +1189,7 @@ _FloorHole.prototype.Layer = function (Value)
 
 _FloorHole.prototype.X = function (X)
 {
-	if (X)
+	if (X !== undefined)
 	{
 		this.Members.Image.x(X);
 	} else
@@ -1189,7 +1199,7 @@ _FloorHole.prototype.X = function (X)
 }
 _FloorHole.prototype.Y = function (Y)
 {
-	if (Y)
+	if (Y !== undefined)
 	{
 		this.Members.Image.y(Y);
 	} else
@@ -1200,7 +1210,7 @@ _FloorHole.prototype.Y = function (Y)
 
 _FloorHole.prototype.Status = function (Value)
 {
-	if (Value)
+	if (Value !== undefined)
 	{
 		this.Members.Status = Value;
 		console.log(this.constructor.name + ": " + this.Members.Status);
@@ -1212,33 +1222,33 @@ _FloorHole.prototype.Status = function (Value)
 
 _FloorHole.prototype.init = function (json_params)
 {
-	if (json_params)
+	if (json_params !== undefined)
 	{	
-		if (json_params.ImgObjs)
+		if (json_params.ImgObjs !== undefined)
 		{
 			this.ImgObjs(json_params.ImgObjs); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.Status)
+		if (json_params.Status !== undefined)
 		{
 			this.Status(json_params.Status); // здоровье, которое будет убывать, когда мы будем их бить.
 		}
-		if (json_params.X)
+		if (json_params.X !== undefined)
 		{
 			this.X(json_params.X);
 		}
-		if (json_params.Y)
+		if (json_params.Y !== undefined)
 		{
 			this.Y(json_params.Y); 
 		}
-		if (json_params.Image)
+		if (json_params.Image !== undefined)
 		{
 			this.Image(json_params.Image); 
 		}
-		if (json_params.Layer)
+		if (json_params.Layer !== undefined)
 		{
 			this.Layer(json_params.Layer); 
 		}
-		if (json_params.Rats)
+		if (json_params.Rats !== undefined)
 		{
 			this.Rats = json_params.Rats; // массив
 		}
@@ -1409,7 +1419,7 @@ function GameProcess ()
 
 	for(var i = 0; i < Foods.length; i++)
 	{
-		if (Foods[i].Status() == "Eaten")
+		if (Foods[i].isEaten())
 		{
 			Foods.splice(i, 1);
 		}
@@ -1421,17 +1431,19 @@ function GameProcess ()
 // создание пищи, первой дыры в полу!
 function GameInit()
 {
-	if (Foods.length == 0)
-	{
-		createFood(InitDatas, Foods, W, H);
-	}
 	if (FloorHoles.length == 0)
 	{
 		createFloorHole(InitDatas, FloorHoles, W, H);
-		createFloorHole(InitDatas, FloorHoles, W, H);
+	}
+	if (Foods.length == 0)
+	{
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
-	
+	MainLayer.draw();	
 }
 
 	var W = 2000;
