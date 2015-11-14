@@ -76,6 +76,8 @@ function _Rat (json_params)
 		this.Members.Image.on('click', function () {
 			this.onClick();
 		});
+		console.log("_Rat: Я родился");
+
 }	
 ////////////////////////////////////////////////////////////
 // get/set members functions!!!!!!!!!!!!!!////////////////
@@ -710,11 +712,11 @@ function _Food (json_params) // это цель, за которой будут 
 		// установка стандартной картинки!
 		this.Image().image(this.ImgObjs().Default);
 		this.Layer().add(this.Image());
-		window.alert(this.ImgObjs().Default);
 		this.Image().on('click', function () {
 			this.onClick();
 		});
 		this.Layer().draw();
+		console.log("_Food: Я родился");
 }	
 // убавление здоровья
 // получение ущерба
@@ -914,6 +916,7 @@ function _Hammer (json_params)
 			this.init(json_params);
 		}
 		document.body.style.cursor = 'url("../games_resources/Cheeser/images/hammer.png"), pointer';
+		console.log("_Hammer: Я родился");
 }
 
 
@@ -1065,7 +1068,7 @@ function _FloorHole (json_params)
 	this.Members.Image.on('click', function () {
 		this.onClick();
 	});
-
+	console.log("_FloorHole: Я родился");
 };
 
 _FloorHole.prototype.ImgObjs = function (Value) 
@@ -1267,15 +1270,15 @@ var InitDatas = {
 	}
 };
 
-function createHole(InitDatas, FloorHoles, W, H)
+function createFloorHole(InitDatas, FloorHoles, W, H)
 {
 	// рандомно выбирается место создания очередной дыры
-	InitDatas._FloorHole.X = Math.random() * (W - 100);
-	InitDatas._FloorHole.Y = Math.random() * (H - 100);
+	InitDatas._FloorHole.X = Math.random() * (W - 200) + 100;
+	InitDatas._FloorHole.Y = Math.random() * (H - 200) + 100;
 	// добавляем дыру в массив!!!
 	FloorHoles.push(new _FloorHole(InitDatas._FloorHole));
 }
-
+/*
 function createRat(InitDatas, FloorHoles, Rats)
 {
 	var holenum = Math.random() * (FloorHoles.length - 1);
@@ -1284,11 +1287,11 @@ function createRat(InitDatas, FloorHoles, Rats)
 	// добавление крысы
 	Rats.push(new _Rat(InitDatas._Rat));
 }
-
+*/
 function createFood(InitDatas, Foods, W, H)
 {
-	InitDatas._Food.X = Math.random() * W;
-	InitDatas._Food.Y = Math.random() * H;
+	InitDatas._Food.X = Math.random() * (W - 200) + 100;
+	InitDatas._Food.Y = Math.random() * (H - 200) + 100;
 	
 	Foods.push(new _Food(InitDatas._Food));
 }
@@ -1331,6 +1334,10 @@ function GameInit()
 	if (Foods.length == 0)
 	{
 		createFood(InitDatas, Foods, W, H);
+	}
+	if (FloorHoles.length == 0)
+	{
+		createFloorHole(InitDatas, FloorHoles, W, H);
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
 	
