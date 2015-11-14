@@ -42,7 +42,7 @@ function _Rat (json_params)
 		
 		this.Members.ImgObjs = {};
 		this.Members.ImgObjs.Default = document.getElementById("Rat_img");
-		this.Members.ImgObjs.Attack = document.getELementById("Rat_img");
+		this.Members.ImgObjs.Attack = document.getElementById("Rat_img");
 		this.Members.ImgObjs.Dead = document.getElementById("RatDead_img");
 		this.Members.ImgObjs.Damage = document.getElementById("Rat_img");
 		
@@ -60,8 +60,7 @@ function _Rat (json_params)
 		this.Members.DamageFactor = null; // фактор, на кот умножается 
 		this.Members.Target = null;
 		// положение X и Y берутся в Image
-		
-		
+				
 		this.Members.Status = null;
 		this.Members.AttackPoint = null;
 				/// Проработать установку значений по-умолчанию
@@ -70,12 +69,13 @@ function _Rat (json_params)
 			this.init(json_params);
 		}
 
-		this.Members.Image.image(this.Members.ImgObjs.Default);
-		this.Members.Image.rotate(3/2 * 180);
-		this.Layer.add(this.Image);
+		this.Image().image(this.ImgObjs().Default);
+		this.Image().rotate(3/2 * 180);
+		this.Layer().add(this.Image());
 		this.Members.Image.on('click', function () {
 			this.onClick();
 		});
+		this.Layer().draw();
 		console.log("_Rat: Я родился");
 
 }	
@@ -138,6 +138,18 @@ _Rat.prototype.SpeedLimit = function(SpeedLimit)
 		return this.Members.SpeedLimit;
 	}
 }
+
+_Rat.prototype.SpeedFactor = function(Value)
+{
+	if (Value)
+	{
+		this.Members.SpeedFactor = Value;
+	} else
+	{
+		return this.Members.SpeedFactor;
+	}
+}
+
 
 _Rat.prototype.Step = function(Value)
 {
@@ -249,6 +261,17 @@ _Rat.prototype.ImgObjs = function (Value)
 	}
 }
 
+_Rat.prototype.Image = function (Value) 
+{
+	if (Value)
+	{
+		this.Members.Image = Value;
+	}else
+	{
+		return this.Members.Image;
+	}
+}
+
 _Rat.prototype.Status = function (Value)
 {
 	if (Value)
@@ -256,9 +279,21 @@ _Rat.prototype.Status = function (Value)
 		this.Members.Status = Value;
 	} else
 	{
-		return this.Members.Status();
+		return this.Members.Status;
 	}
 }
+
+_Rat.prototype.Target = function (Value)
+{
+	if (Value)
+	{
+		this.Members.Target = Value;
+	} else
+	{
+		return this.Members.Target;
+	}
+}
+
 
 ////////////////////////////////////////////////////////////
 // увеличение скорости
@@ -358,31 +393,42 @@ _Rat.prototype.Life = function (json_params)
 	// если я мертва - то ничего не делать!
 	if (this.isDead())
 		return;
-	
 	// если у нас нет цели, то выбирваем!	
-	if (this.Target() == null)
+	if (this.Members.Target == null)
 	{
 		// выбираем цель из полученного списка!
 		this.selectTarget(json_params);
 		// поворачиваемся к цели!
+		window.alert(this.Members.Target);
 		this.turnToTarget({"Target" : this.Target()});
 		// идем к цели
 		this.comeTo({"Target" : this.Target()});
-	}
+	} else 
 	// если цель есть!
-	else 
 	{
-		// если мы доели пищу - обнуляем ее, и ищем новую!
+		if(this.Status() == "Live")
+		{
+		// поворачиваемся к цели!
+		window.alert(this.Target());
+		this.turnToTarget({"Target" : this.Target()});
+		// идем к цели
+		this.comeTo({"Target" : this.Target()});
+		}
+		// если мы доели пищу - обнуляем ее, и ищем новую!		
 		if (this.Target().isEaten())
 		{
-			this.Target(null);
-		}
+			this.Members.Target = null;
+			this.Status("Live");
+		} else
 		// если мы сейчас идем к цели - ничего не делаем...
-		if (this.isGoing())
+		if (this.isGoing()){
 			return;
+		} else
 		// если мы можем атаковать - атакуем....
-		if (this.isCanAttack())
+		if (this.isCanAttack()){
+			window.alert("CanATTACK");
 			this.attackTarget({"Target" : this.Target()});
+		}
 	}
 	
 }
@@ -436,7 +482,7 @@ _Rat.prototype.selectTarget = function (json_params)
 				return;
 			}
 			
-			this.Target = json_params.Targets[0]; // сначала выбираем 0 элемент
+			this.Members.Target = json_params.Targets[0]; // сначала выбираем 0 элемент
 			
 			if (json_params.Targets.length == 1)
 			{
@@ -447,9 +493,9 @@ _Rat.prototype.selectTarget = function (json_params)
 			{
 				// если X + Y до новой цели меньше, чем до текущей, то меняем текущую цель на новую 
 				if(Math.abs(json_params.Targets[i].X() - this.X()) + Math.abs(json_params.Targets[i].Y() - this.Y()) < 
-					 Math.abs(this.Target.X() - this.X()) + Math.abs(this.Target.X() - this.X()))
+					 Math.abs(this.Members.Target.X() - this.X()) + Math.abs(this.Members.Target.Y() - this.Y()))
 					 {
-						 this.Target = json_params.Targets[i];
+						 this.Members.Target = json_params.Targets[i];
 					 }
 			}
 		}
@@ -468,20 +514,22 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 	{
 		var toObj = {};
 		// вычисление координаты точки X
-		if (this.X() < json_params.Target().X())
+		if (this.X() < json_params.Target.X())
 		{
-			toObj.X = json_params.Target().X() - this.Width();
+			toObj.X = json_params.Target.X() - this.Width();
 		} else
 		{
-			toObj.X = json_params.Target().X() + json_params.Target.Width();
+			toObj.X = json_params.Target.X() + json_params.Target.Width();
 		} 
 		// вычисление координаты точки Y;
-		if (this.Y() < json_params.Target().Y())
+		window.alert(this.Height());
+		
+		if (this.Y() < json_params.Target.Y())
 		{
-			toObj.Y = json_params.Target().Y() - this.Height();
+			toObj.Y = json_params.Target.Y() - this.Height();
 		} else
 		{
-			toObj.Y = json_params.Target().Y() + json_params.Target.Height();
+			toObj.Y = json_params.Target.Y() + json_params.Target.Height();
 		} 
 		timeX = toObj.X - this.X();
 		timeY = toObj.Y - this.Y();
@@ -548,7 +596,7 @@ _Rat.prototype.reduceHealth = function (json_params)
 				this.Health(this.Health() - json_params.ReduceValue);	
 		}
 	}
-	if (this.Health <= 0)
+	if (this.Health() <= 0)
 	{
 		this.onKill();
 	}
@@ -578,6 +626,7 @@ _Rat.prototype.onAttackMe = function (json_params)
 //атака цели
 _Rat.prototype.attackTarget = function (json_params)
 {
+	window.alert("From AttackTarget");
 	if (json_params.Target)
 	{
 		json_params.Target.onAttackMe({"Damage" : this.Damage() * this.DamageFactor()});
@@ -641,15 +690,17 @@ _Rat.prototype.comeTo = function (json_params)
 			if (json_params.Target)
 			{
 				var toXY = this.calculateAttackPoint(json_params);
-				this.Image.to({
+				this.Image().to({
 					x: toXY.X,// CheeseImage.x(),
 					y: toXY.Y,//CheeseImage.y(),
 					duration: toXY.duration
 				});
 				// устанавливаем статус на "Иду"
 				this.Status("Going");
+				// это значение для разных крыс может перебиваться!
+				var RatThat = this;
 				setTimeout(function () {
-					this.Status("CanAttack");
+					RatThat.Status("CanAttack");
 				}, toXY.duration * 1000);
 			}
 		}
@@ -787,6 +838,28 @@ _Food.prototype.Layer = function (Value)
 	}
 }
 
+_Food.prototype.Height = function (Value)
+{
+	if (Value)
+	{
+		this.Members.Image.height(Value);
+	} else
+	{
+		return this.Members.Image.height();
+	}
+}
+
+_Food.prototype.Width = function (Value)
+{
+	if (Value)
+	{
+		this.Members.Image.width(Value);
+	} else
+	{
+		return this.Members.Image.width();
+	}
+}
+
 _Food.prototype.Status = function (Value)
 {
 	if (Value)
@@ -848,7 +921,7 @@ _Food.prototype.isEaten = function ()
 // когда пищу съели
 _Food.prototype.onEaten = function (json_params) 
 {
-	this.Members.Image().image(this.Members.ImgObjs().Eaten);
+	this.Image().image(this.ImgObjs().Eaten);
 	this.Status("Eaten");
 }
 
@@ -860,8 +933,10 @@ _Food.prototype.reduceHealth = function (json_params)
 	{
 		if(json_params.Damage){
 				this.Health(this.Health() - json_params.Damage);	
+				window.alert("this Health: " + this.Health());
 		}
 	}
+	
 	if (this.Health() <= 0)
 	{
 		this.onEaten();
@@ -1050,7 +1125,7 @@ function _FloorHole (json_params)
 	this.Members.ImgObjs.Default = null;
 	this.Members.ImgObjs.Repaired = null;
 	
-	this.Members.Image = null;
+	this.Members.Image = new Konva.Image();
 	this.Members.Layer = null;
 	this.Members.Status = null; // статус
 	
@@ -1063,11 +1138,13 @@ function _FloorHole (json_params)
 	{
 		this.init(json_params);
 	}
-	this.Members.Image.image(this.Members.ImgObjs.Default);
-	this.Layer.add(this.Image);
+	this.Image().image(this.ImgObjs().Default);
+	this.Layer().add(this.Image());
 	this.Members.Image.on('click', function () {
 		this.onClick();
 	});
+	this.Layer().draw();
+
 	console.log("_FloorHole: Я родился");
 };
 
@@ -1175,18 +1252,19 @@ _FloorHole.prototype.init = function (json_params)
 // функция создания мышей!
 _FloorHole.prototype.createRat = function (json_params)
 {
-	this.ratCreationTimer = setTimeout(
-		function () 
+	var FloorThat = this;
+	this.ratCreationTimer = setTimeout(function () 
 		{
-			json_params.InitDatas._Rat.X = this.X();
-			json_params.InitDatas._Rat.Y = this.Y();
+			InitDatas._Rat.X = FloorThat.X();
+			InitDatas._Rat.Y = FloorThat.Y();
 			// добавление крысы 
-			this.Rats.push(new _Rat(json_params.InitDatas._Rat));
+			FloorThat.Rats.push(new _Rat(InitDatas._Rat));
 			// возвращаем статус на открыта!
-			this.Status("Open");
+			FloorThat.Status("Open");
 		},
-		(Math.random() * 10 + 5) * 1000
-	);
+		(Math.random() * 10 + 5) * 1000);
+	// устанавливаем статус создание крысы, чтобы нас не удалили из
+	// массива!	
 	this.Status("RatCreating");
 }
 
@@ -1237,11 +1315,11 @@ var InitDatas = {
 			Damage: document.getElementById("Rat_img"),
 			Attack: document.getElementById("Rat_img")
 		},
-		Speed: 60,
+		Speed: 200,
 		SpeedLimit: 100,
 		SpeedFactor: 1,
 		Step: 2,
-		Damage: 20,
+		Damage: 60,
 		DamageFactor: 1,
 		Layer: MainLayer,
 		Status: "Live"
@@ -1312,7 +1390,7 @@ function GameProcess ()
 		// если какая-то из дыр открыта!
 		if (FloorHoles[i].Status() == "Open")
 		{
-			FloorHoles[i].createRat();
+			FloorHoles[i].createRat({"InitDatas" : InitDatas});
 		}
 	}
 	
@@ -1322,9 +1400,23 @@ function GameProcess ()
 		{
 			Rats.splice(i, 1);
 		} else
-			Rats[i].Life();
+		{
+			Rats[i].Life({"Targets" : Foods});
+		}
 	}
-	
+
+	if (Foods.length == 0)
+	{
+		window.alert("Ты проиграл!!!");
+	}
+
+	for(var i = 0; i < Foods.length; i++)
+	{
+		if (Foods[i].Status() == "Eaten")
+		{
+			Foods.splice(i, 1);
+		}
+	}
 }	
 
 // инициализация игры
@@ -1373,8 +1465,7 @@ function Game() {
 	
 	// GameProcess
 	GameInit();
-	setTimeout(GameProcess,
-	1000);
+	setInterval(GameProcess, 1000);
 	
 	
 	
