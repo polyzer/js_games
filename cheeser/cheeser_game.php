@@ -152,20 +152,20 @@ _Rat.prototype.X = function (X)
 {
 	if (X)
 	{
-		this.Members.Image.X = X;
+		this.Members.Image.x(X);
 	} else
 	{
-		return this.Members.Image.X;
+		return this.Members.Image.x();
 	}
 }
 _Rat.prototype.Y = function (Y)
 {
 	if (Y)
 	{
-		this.Members.Image.Y = Y;
+		this.Members.Image.y(Y);
 	} else
 	{
-		return this.Members.Image.Y;
+		return this.Members.Image.y();
 	}
 }
 
@@ -701,19 +701,20 @@ function _Food (json_params) // это цель, за которой будут 
 		this.Members.Y = null;
 
 		this.Members.Status = null;
-	
+		
 		if (json_params)
 		{
 				this.init(json_params);
 		}
 		
 		// установка стандартной картинки!
-		this.Image().image(this.Members.ImgObjs.Default);
+		this.Image().image(this.ImgObjs().Default);
 		this.Layer().add(this.Image());
+		window.alert(this.ImgObjs().Default);
 		this.Image().on('click', function () {
 			this.onClick();
 		});
-
+		this.Layer().draw();
 }	
 // убавление здоровья
 // получение ущерба
@@ -745,20 +746,20 @@ _Food.prototype.X = function (X)
 {
 	if (X)
 	{
-		this.Members.Image.X = X;
+		this.Members.Image.x(X);
 	} else
 	{
-		return this.Members.Image.X;
+		return this.Members.Image.x();
 	}
 }
 _Food.prototype.Y = function (Y)
 {
 	if (Y)
 	{
-		this.Members.Y = Y;
+		this.Members.Image.y(Y);
 	} else
 	{
-		return this.Members.Y;
+		return this.Members.Image.y();
 	}
 }
 
@@ -912,6 +913,7 @@ function _Hammer (json_params)
 		{
 			this.init(json_params);
 		}
+		document.body.style.cursor = 'url("../games_resources/Cheeser/images/hammer.png"), pointer';
 }
 
 
@@ -1103,20 +1105,20 @@ _FloorHole.prototype.X = function (X)
 {
 	if (X)
 	{
-		this.Members.Image.X = X;
+		this.Members.Image.x(X);
 	} else
 	{
-		return this.Members.Image.X;
+		return this.Members.Image.x();
 	}
 }
 _FloorHole.prototype.Y = function (Y)
 {
 	if (Y)
 	{
-		this.Members.Y = Y;
+		this.Members.Image.y(Y);
 	} else
 	{
-		return this.Members.Y;
+		return this.Members.Image.y();
 	}
 }
 
@@ -1288,7 +1290,7 @@ function createFood(InitDatas, Foods, W, H)
 	InitDatas._Food.X = Math.random() * W;
 	InitDatas._Food.Y = Math.random() * H;
 	
-	Foods.push(new _Food(InitDatas._Foods));
+	Foods.push(new _Food(InitDatas._Food));
 }
 
 // функция обработки игрового процесса!
@@ -1296,7 +1298,7 @@ function createFood(InitDatas, Foods, W, H)
 // если вся пища съедена - конец игры
 function GameProcess ()
 {
-	// 
+	
 	for(var i = 0; i < FloorHoles.length; i++)
 	{
 		// если какая-то из дыр заколочена - удаляем из массива ее!
@@ -1331,15 +1333,11 @@ function GameInit()
 		createFood(InitDatas, Foods, W, H);
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
+	
 }
 
 	var W = 2000;
 	var H = 2000;
-
-	
-function Game() {
-
-
 
 	var GameContainer;
 	GameContainer = document.createElement("div");
@@ -1356,13 +1354,19 @@ function Game() {
 			width: W,
 			height: H
 	});
+
+	
+function Game() {
+
+
+
 	
 	MainStage.add(MainLayer);
 	MainLayer.draw();
 	
 	// GameProcess
 	GameInit();
-	setInterval(GameProcess,
+	setTimeout(GameProcess,
 	1000);
 	
 	
