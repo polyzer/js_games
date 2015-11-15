@@ -1445,6 +1445,10 @@ function GameInit()
 	if (FloorHoles.length == 0)
 	{
 		createFloorHole(InitDatas, FloorHoles, W, H);
+		createFloorHole(InitDatas, FloorHoles, W, H);
+		createFloorHole(InitDatas, FloorHoles, W, H);
+
+
 	}
 	if (Foods.length == 0)
 	{
