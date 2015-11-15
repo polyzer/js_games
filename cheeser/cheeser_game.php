@@ -72,12 +72,9 @@ function _Rat (json_params)
 		this.Image().image(this.ImgObjs().Default);
 		this.Image().rotate(3/2 * 180);
 		this.Layer().add(this.Image());
-		var RatOnThat = this;
+		this.Image().RatObj = this;
 		this.Image().on('click', function (event) {
-				for (x in event.target)
-				{
-					window.alert(x);
-				}
+			event.target.RatObj.onClick({"Weapon" : Weapon});
 		});
 		this.Layer().draw();
 		console.log("_Rat: Я родился");
@@ -192,6 +189,7 @@ _Rat.prototype.Health = function (Health)
 	if (Health !== undefined)
 	{
 		this.Members.Health = Health;
+		console.log(this.constructor.name + " health: " + this.Members.Health);
 	} else
 	{
 		return this.Members.Health;
@@ -594,6 +592,10 @@ _Rat.prototype.reduceSpeed = function (json_params)
 _Rat.prototype.onKill = function (json_params) 
 {
 	this.Image().image(this.ImgObjs().Dead);
+	if(this.comeTween !== undefined)
+	{
+		this.comeTween.pause();
+	}
 	this.Status("Dead");
 }
 // уменьшение здоровья!
@@ -699,12 +701,17 @@ _Rat.prototype.comeTo = function (json_params)
 		{
 			if (json_params.Target)
 			{
+				// здесь параметры движения
 				var toXY = this.calculateAttackPoint(json_params);
-				this.Image().to({
+				// установка перемещения!
+				this.comeTween = new Konva.Tween({
+					node: this.Image(),
 					x: toXY.X,// CheeseImage.x(),
 					y: toXY.Y,//CheeseImage.y(),
 					duration: toXY.duration
 				});
+				// запуск перемещения!
+				this.comeTween.play();
 				// устанавливаем статус на "Иду"
 				this.Status("Going");
 				// это значение для разных крыс может перебиваться!
