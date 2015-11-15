@@ -72,8 +72,12 @@ function _Rat (json_params)
 		this.Image().image(this.ImgObjs().Default);
 		this.Image().rotate(3/2 * 180);
 		this.Layer().add(this.Image());
-		this.Members.Image.on('click', function () {
-			this.onClick();
+		var RatOnThat = this;
+		this.Image().on('click', function (event) {
+				for (x in event.target)
+				{
+					window.alert(x);
+				}
 		});
 		this.Layer().draw();
 		console.log("_Rat: Я родился");
@@ -997,7 +1001,7 @@ function _Hammer (json_params)
 		{
 			this.init(json_params);
 		}
-		document.body.style.cursor = 'url("../games_resources/Cheeser/images/hammer.png"), pointer';
+//	document.body.style.cursor = 'url("../games_resources/Cheeser/images/hammer.png"), pointer';
 		console.log("_Hammer: Я родился");
 }
 
@@ -1300,7 +1304,7 @@ _FloorHole.prototype.isRepaired = function ()
 			return 0;
 		}
 }
-
+////////////////////////////////////////////////////////////////
 var MainLayer = new Konva.Layer();
 // массивы
 var Rats = [];
@@ -1312,7 +1316,7 @@ var Foods = [];
 // создавать из класса _Hammer
 var Weapon = null; // это оружие
 
-
+////////////////////////////////////////////////////////////////////
 var InitDatas = {
 	_Rat : {
 		Health: 170,
@@ -1354,7 +1358,7 @@ var InitDatas = {
 		Rats: Rats
 	}
 };
-
+////////////////////////////////////////////////////////////////////
 function createFloorHole(InitDatas, FloorHoles, W, H)
 {
 	// рандомно выбирается место создания очередной дыры
@@ -1440,7 +1444,21 @@ function GameInit()
 		createFood(InitDatas, Foods, W, H);
 		createFood(InitDatas, Foods, W, H);
 		createFood(InitDatas, Foods, W, H);
-		
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
+		createFood(InitDatas, Foods, W, H);
 	}
 	Weapon = new _Hammer(InitDatas._Hammer);
 	MainLayer.draw();	
@@ -1468,9 +1486,6 @@ function GameInit()
 	
 function Game() {
 
-
-
-	
 	MainStage.add(MainLayer);
 	MainLayer.draw();
 	
