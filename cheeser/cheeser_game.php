@@ -20,12 +20,12 @@ body img
 </head>
 
 <body>
-<img id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
-<img id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
-<img id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
-<img id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
-<img id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
-<img id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
+<img width = "20" height = "35" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
+<img width = "30" height = "20" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
+<img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
+<img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
+<img width = "20" height = "15" id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
+<img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
 	
 
 <script>
@@ -80,6 +80,7 @@ function _Rat (json_params)
 		{
 			this.Image().width(this.Image().width() * json_params.Scale.x);
 			this.Image().height(this.Image().height() * json_params.Scale.y);
+			this.Image().draw();
 		}
 		this.Layer().draw();
 		console.log("_Rat: Я родился");
@@ -517,19 +518,19 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 		// вычисление координаты точки X
 		if (this.X() < json_params.Target.X())
 		{
-			toObj.X = Math.round(json_params.Target.X() - json_params.Target.Width());
+			toObj.X = Math.round(json_params.Target.X() - json_params.Target.Width() / 2);
 		} else
 		{
-			toObj.X = Math.round(json_params.Target.X() + (json_params.Target.Width() / 2) + json_params.Target.Width());
+			toObj.X = Math.round(json_params.Target.X() - this.Width());
 		} 
 		// вычисление координаты точки Y;
 		
 		if (this.Y() < json_params.Target.Y())
 		{
-			toObj.Y = Math.round(json_params.Target.Y() - json_params.Target.Height());
+			toObj.Y = Math.round(json_params.Target.Y() - json_params.Target.Height() / 2 );
 		} else
 		{
-			toObj.Y = Math.round(json_params.Target.Y() + (json_params.Target.Height() / 2) + json_params.Target.Height());
+			toObj.Y = Math.round(json_params.Target.Y()  - this.Height());
 		} 
 		timeX = toObj.X - this.X();
 		timeY = toObj.Y - this.Y();
@@ -790,13 +791,11 @@ function _Food (json_params) // это цель, за которой будут 
 		// установка стандартной картинки!
 		this.Image().image(this.ImgObjs().Default);
 		this.Layer().add(this.Image());
-		this.Image().on('click', function () {
-			this.onClick();
-		});
 		if (json_params.Scale !== undefined)
 		{
 			this.Image().width(this.Image().width() * json_params.Scale.x);
 			this.Image().height(this.Image().height() * json_params.Scale.y);
+			this.Image().draw();
 		}
 
 		this.Layer().draw();
@@ -1181,6 +1180,7 @@ function _FloorHole (json_params)
 		{
 			this.Image().width(this.Image().width() * json_params.Scale.x);
 			this.Image().height(this.Image().height() * json_params.Scale.y);
+			this.Image().draw();
 		}
 
 	this.Layer().draw();
@@ -1290,19 +1290,20 @@ _FloorHole.prototype.init = function (json_params)
 }
 
 // функция создания мышей!
+
 _FloorHole.prototype.createRat = function (json_params)
 {
 	var FloorThat = this;
 	this.ratCreationTimer = setTimeout(function () 
 		{
-			InitDatas._Rat.X = FloorThat.X();
-			InitDatas._Rat.Y = FloorThat.Y();
+			InitDatas._Rat.X = FloorThat.X() + (Math.random() * 10 -3);
+			InitDatas._Rat.Y = FloorThat.Y() + (Math.random() * 10 -3);
 			// добавление крысы 
 			FloorThat.Rats.push(new _Rat(InitDatas._Rat));
 			// возвращаем статус на открыта!
 			FloorThat.Status("Open");
 		},
-		(Math.random() * 10 + 5) * 1000);
+		(Math.random() * 8 + 2) * 1000);
 	// устанавливаем статус создание крысы, чтобы нас не удалили из
 	// массива!	
 	this.Status("RatCreating");
@@ -1362,11 +1363,7 @@ var InitDatas = {
 		Damage: 60,
 		DamageFactor: 1,
 		Layer: MainLayer,
-		Status: "Live",
-		Scale: {
-			x: 0.25,
-			y: 0.25
-		}
+		Status: "Live"
 	},
 	_Food : {
 		Health: 200,
@@ -1375,11 +1372,7 @@ var InitDatas = {
 			Eaten: document.getElementById("Crumbs_img"),
 		},
 		Status: "NotEaten",
-		Layer: MainLayer,
-		Scale: {
-			x: 0.25,
-			y: 0.25
-		}
+		Layer: MainLayer
 	},
 	_Hammer : {
 		Damage: 50,
@@ -1392,11 +1385,7 @@ var InitDatas = {
 		},
 		Layer: MainLayer,
 		Status: "Open",
-		Rats: Rats,
-		Scale: {
-			x: 0.25,
-			y: 0.25
-		}
+		Rats: Rats
 	}
 };
 ////////////////////////////////////////////////////////////////////
