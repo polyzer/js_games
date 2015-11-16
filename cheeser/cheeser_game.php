@@ -21,7 +21,7 @@ body img
 
 <body>
 <img width = "20" height = "35" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
-<img width = "30" height = "20" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
+<img width = "20" height = "35" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
 <img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
 <img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
 <img width = "20" height = "15" id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
@@ -521,7 +521,7 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 			toObj.X = Math.round(json_params.Target.X() - json_params.Target.Width() / 2);
 		} else
 		{
-			toObj.X = Math.round(json_params.Target.X() - this.Width());
+			toObj.X = Math.round(json_params.Target.X() + this.Width() / 2);
 		} 
 		// вычисление координаты точки Y;
 		
@@ -530,7 +530,7 @@ _Rat.prototype.calculateAttackPoint = function (json_params)
 			toObj.Y = Math.round(json_params.Target.Y() - json_params.Target.Height() / 2 );
 		} else
 		{
-			toObj.Y = Math.round(json_params.Target.Y()  - this.Height());
+			toObj.Y = Math.round(json_params.Target.Y()  + this.Height() / 2);
 		} 
 		timeX = toObj.X - this.X();
 		timeY = toObj.Y - this.Y();
@@ -1335,8 +1335,13 @@ _FloorHole.prototype.isRepaired = function ()
 		}
 }
 ////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+/////////////////////		GLOBAL FUNCTIONS AND OBJECTS
+///////////////////////////////////////////////////////////////////
+
+
 var MainLayer = new Konva.Layer();
-// массивы
+// массивы объектов!
 var Rats = [];
 var FloorHoles = [];
 var Foods = [];
@@ -1388,7 +1393,7 @@ var InitDatas = {
 		Rats: Rats
 	}
 };
-////////////////////////////////////////////////////////////////////
+
 function createFloorHole(InitDatas, FloorHoles, W, H)
 {
 	// рандомно выбирается место создания очередной дыры
@@ -1397,16 +1402,6 @@ function createFloorHole(InitDatas, FloorHoles, W, H)
 	// добавляем дыру в массив!!!
 	FloorHoles.push(new _FloorHole(InitDatas._FloorHole));
 }
-/*
-function createRat(InitDatas, FloorHoles, Rats)
-{
-	var holenum = Math.random() * (FloorHoles.length - 1);
-	InitDatas._Rat.X = FloorHoles[holenum].X();
-	InitDatas._Rat.Y = FloorHoles[holenum].Y();
-	// добавление крысы
-	Rats.push(new _Rat(InitDatas._Rat));
-}
-*/
 function createFood(InitDatas, Foods, W, H)
 {
 	InitDatas._Food.X = Math.random() * (W - 200) + 100;
@@ -1414,7 +1409,6 @@ function createFood(InitDatas, Foods, W, H)
 	
 	Foods.push(new _Food(InitDatas._Food));
 }
-
 // функция обработки игрового процесса!
 // будет вызываться постоянно!
 // если вся пища съедена - конец игры
@@ -1498,15 +1492,15 @@ function GameInit()
 	MainLayer.draw();	
 }
 
-	var W = 1000;
-	var H = 1000;
+	var W = 1000; // ширина
+	var H = 950; // высота
 
-	var GameContainer;
+	var GameContainer; // контейнер игры!
 	GameContainer = document.createElement("div");
 	GameContainer.setAttribute("id", "GameContainer");
 	GameContainer.style.position = "absolute";
 	GameContainer.style.left = "0px";
-	GameContainer.style.top = "0px";
+	GameContainer.style.top = "50px";
 	GameContainer.style.width = W + "px";
 	GameContainer.style.height = H + "px";
 	document.body.appendChild(GameContainer);
@@ -1517,6 +1511,35 @@ function GameInit()
 			height: H
 	});
 
+var GameMenu; // игровое меню!
+var GameStats = {}; // статистика!
+		GameStats.Div = document.createElement("div");
+		GameStats.Div.setAttribute("id", "GameStats");
+		GameStats.Div.style.position = "absolute";
+		GameStats.Div.style.left = "0px";
+		GameStats.Div.style.top = "0px";
+		GameStats.Div.style.width = W + "px";
+		GameStats.Div.style.height = "50px";
+		GameStats.Div.style.backgroundColor = "blue";
+		GameStats.Div.style.borderBottom = "1px solid red";
+		document.body.appendChild(GameStats.Div);
+		
+		GameStats.RatsKilledDiv = document.createElement("div");		
+		GameStats.RatsKilledDiv.style.position = "relative";
+		GameStats.RatsKilledDiv.style.height = "100%";
+		GameStats.RatsKilledDiv.style.width = "30%";
+		GameStats.RatsKilledDiv.style.align = "left";
+		GameStats.RatsKilledDiv.style.backgroundColor = "green";
+		GameStats.Div.appendChild(GameStats.RatsKilledDiv);
+
+		GameStats.FoodNotEatenDiv = document.createElement("div");		
+		GameStats.FoodNotEatenDiv.style.relative = "relative";
+		GameStats.FoodNotEatenDiv.style.height = "100%";
+		GameStats.FoodNotEatenDiv.style.width = "30%";
+		GameStats.FoodNotEatenDiv.style.align = "left";
+		GameStats.FoodNotEatenDiv.style.backgroundColor = "black";
+		GameStats.Div.appendChild(GameStats.FoodNotEatenDiv);
+
 	
 function Game() {
 
@@ -1525,10 +1548,7 @@ function Game() {
 	
 	// GameProcess
 	GameInit();
-	setInterval(GameProcess, 1000);
-	
-	
-	
+	setInterval(GameProcess, 1000);	
 };	
 
 
