@@ -16,19 +16,119 @@ body img
 	visible: hidden;
 }
 
+#GameStats
+{
+	text-align: center;
+	text-valign: center;
+}
+
 </style>
 </head>
 
-<body>
+<body>	
 <img width = "20" height = "35" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
 <img width = "20" height = "35" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
 <img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
 <img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
 <img width = "20" height = "15" id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
 <img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
-	
-
 <script>
+	var W = 1000; // ширина
+	var H = 970; // высота
+var GameMenu; // игровое меню!
+function _GameStats () { // статистика!
+		this.Div = document.createElement("div");
+		this.Div.setAttribute("id", "GameStats");
+		this.Div.style.position = "absolute";
+		this.Div.style.left = "0px";
+		this.Div.style.top = "0px";
+		this.Div.style.width = W + "px";
+		this.Div.style.height = "30px";
+		this.Div.style.backgroundColor = "blue";
+		this.Div.style.borderBottom = "1px solid red";
+		document.body.appendChild(this.Div);
+		
+		this.RatsKilledDiv = document.createElement("div");		
+		this.RatsKilledDiv.style.height = "100%";
+		this.RatsKilledDiv.style.width = "25%";
+		this.RatsKilledDiv.style.float = "left";
+		this.RatsKilledDiv.style.backgroundColor = "green";
+		this.Div.appendChild(this.RatsKilledDiv);
+
+		this.FoodsDiv = document.createElement("div");		
+		this.FoodsDiv.style.height = "100%";
+		this.FoodsDiv.style.width = "25%";
+		this.FoodsDiv.style.float = "left";
+		this.FoodsDiv.style.backgroundColor = "black";
+		this.Div.appendChild(this.FoodsDiv);
+
+		this.FloorHolesDiv = document.createElement("div");		
+		this.FloorHolesDiv.style.height = "100%";
+		this.FloorHolesDiv.style.width = "25%";
+		this.FloorHolesDiv.style.float = "left";
+		this.FloorHolesDiv.style.backgroundColor = "red";
+		this.Div.appendChild(this.FloorHolesDiv);
+		
+		this.TimerDiv = document.createElement("div");		
+		this.TimerDiv.style.height = "100%";
+		this.TimerDiv.style.width = "25%";
+		this.TimerDiv.style.float = "left";
+		this.TimerDiv.style.backgroundColor = "yellow";
+		this.Div.appendChild(this.TimerDiv);		
+		
+		this.RatsKilledCounter = 0; // счетчик убитых крыс
+		this.FoodsCounter = 0; // счетчик оставшейся пищи
+		this.FloorHolesCounter = 0; // количество дыр!
+		
+		this.Timer = 0; // таймер, засекающий время продолжительности игры.
+		
+		this.updateDivs();
+};
+
+_GameStats.prototype.updateDivs = function () 
+{
+	this.RatsKilledDiv.innerHTML = "Крысаканов убито: " + this.RatsKilledCounter;
+	this.FoodsDiv.innerHTML = "Пищи осталось: " + this.FoodsCounter;
+	this.FloorHolesDiv.innerHTML = "Дыр в полу: " + this.FloorHolesCounter;
+}
+
+_GameStats.prototype.increaseRatsKilledCounter = function () 
+{
+	this.RatsKilledCounter++;
+	this.updateDivs();
+}
+
+_GameStats.prototype.reduceRatsKilledCounter = function () 
+{
+	this.RatsKilledCounter--;
+	this.updateDivs();
+}
+
+_GameStats.prototype.increaseFoodsCounter = function () 
+{
+	this.FoodsCounter++;
+	this.updateDivs();
+}
+
+_GameStats.prototype.reduceFoodsCounter = function () 
+{
+	this.FoodsCounter--;
+	this.updateDivs();
+}
+
+_GameStats.prototype.increaseFloorHolesCounter = function () 
+{
+	this.FloorHolesCounter++;
+	this.updateDivs();
+}
+
+_GameStats.prototype.reduceFloorHolesCounter = function () 
+{
+	this.FloorHolesCounter--;
+	this.updateDivs();
+}
+
+var gamestats = new _GameStats();
 
 
 ////////////////////////////	____CLASSES_______ //////////
@@ -1293,6 +1393,8 @@ _FloorHole.prototype.init = function (json_params)
 
 _FloorHole.prototype.createRat = function (json_params)
 {
+	
+// могут возникнуть проблемы!	
 	var FloorThat = this;
 	this.ratCreationTimer = setTimeout(function () 
 		{
@@ -1401,6 +1503,7 @@ function createFloorHole(InitDatas, FloorHoles, W, H)
 	InitDatas._FloorHole.Y = Math.random() * (H - 200) + 100;
 	// добавляем дыру в массив!!!
 	FloorHoles.push(new _FloorHole(InitDatas._FloorHole));
+	gamestats.increaseFloorHolesCounter();
 }
 function createFood(InitDatas, Foods, W, H)
 {
@@ -1408,6 +1511,7 @@ function createFood(InitDatas, Foods, W, H)
 	InitDatas._Food.Y = Math.random() * (H - 200) + 100;
 	
 	Foods.push(new _Food(InitDatas._Food));
+	gamestats.increaseFoodsCounter();
 }
 // функция обработки игрового процесса!
 // будет вызываться постоянно!
@@ -1421,6 +1525,7 @@ function GameProcess ()
 		if (FloorHoles[i].Status() == "Repaired")
 		{
 			FloorHoles.splice(i,1);
+			gamestats.reduceFloorHolesCounter();
 		} else
 		// если какая-то из дыр открыта!
 		if (FloorHoles[i].Status() == "Open")
@@ -1434,6 +1539,7 @@ function GameProcess ()
 		if (Rats[i].Status() == "Dead")
 		{
 			Rats.splice(i, 1);
+			gamestats.increaseRatsKilledCounter();
 		} else
 		{
 			Rats[i].Life({"Targets" : Foods});
@@ -1450,6 +1556,7 @@ function GameProcess ()
 		if (Foods[i].isEaten())
 		{
 			Foods.splice(i, 1);
+			gamestats.reduceFoodsCounter();
 		}
 	}
 	MainLayer.draw();
@@ -1492,15 +1599,12 @@ function GameInit()
 	MainLayer.draw();	
 }
 
-	var W = 1000; // ширина
-	var H = 950; // высота
-
 	var GameContainer; // контейнер игры!
 	GameContainer = document.createElement("div");
 	GameContainer.setAttribute("id", "GameContainer");
 	GameContainer.style.position = "absolute";
 	GameContainer.style.left = "0px";
-	GameContainer.style.top = "50px";
+	GameContainer.style.top = "30px";
 	GameContainer.style.width = W + "px";
 	GameContainer.style.height = H + "px";
 	document.body.appendChild(GameContainer);
@@ -1511,34 +1615,7 @@ function GameInit()
 			height: H
 	});
 
-var GameMenu; // игровое меню!
-var GameStats = {}; // статистика!
-		GameStats.Div = document.createElement("div");
-		GameStats.Div.setAttribute("id", "GameStats");
-		GameStats.Div.style.position = "absolute";
-		GameStats.Div.style.left = "0px";
-		GameStats.Div.style.top = "0px";
-		GameStats.Div.style.width = W + "px";
-		GameStats.Div.style.height = "50px";
-		GameStats.Div.style.backgroundColor = "blue";
-		GameStats.Div.style.borderBottom = "1px solid red";
-		document.body.appendChild(GameStats.Div);
-		
-		GameStats.RatsKilledDiv = document.createElement("div");		
-		GameStats.RatsKilledDiv.style.position = "relative";
-		GameStats.RatsKilledDiv.style.height = "100%";
-		GameStats.RatsKilledDiv.style.width = "30%";
-		GameStats.RatsKilledDiv.style.align = "left";
-		GameStats.RatsKilledDiv.style.backgroundColor = "green";
-		GameStats.Div.appendChild(GameStats.RatsKilledDiv);
 
-		GameStats.FoodNotEatenDiv = document.createElement("div");		
-		GameStats.FoodNotEatenDiv.style.relative = "relative";
-		GameStats.FoodNotEatenDiv.style.height = "100%";
-		GameStats.FoodNotEatenDiv.style.width = "30%";
-		GameStats.FoodNotEatenDiv.style.align = "left";
-		GameStats.FoodNotEatenDiv.style.backgroundColor = "black";
-		GameStats.Div.appendChild(GameStats.FoodNotEatenDiv);
 
 	
 function Game() {
