@@ -156,7 +156,7 @@ function _GameStats () { // статистика!
 
 _GameStats.prototype.updateDivs = function () 
 {
-	this.RatsKilledDiv.innerHTML = "Крысаканов убито: " + this.RatsKilledCounter;
+	this.RatsKilledDiv.innerHTML = "Крыс убито: " + this.RatsKilledCounter;
 	this.FoodsDiv.innerHTML = "Пищи осталось: " + this.FoodsCounter;
 	this.FloorHolesDiv.innerHTML = "Дыр в полу: " + this.FloorHolesCounter;
 }
@@ -843,6 +843,7 @@ _Rat.prototype.onKill = function (json_params)
 	{
 		this.comeTween.pause();
 	}
+	this.Image().off("click");
 	this.Status("Dead");
 }
 // уменьшение здоровья!
@@ -1393,6 +1394,7 @@ function _FloorHole (json_params)
 	this.Members.Layer = null;
 	this.Members.Status = null; // статус
 	
+	this.Members.Health = null;
 	this.Members.Timers = {};
 	this.Members.Timers.ratCreationTime = null;
 	
@@ -1404,8 +1406,9 @@ function _FloorHole (json_params)
 	}
 	this.Image().image(this.ImgObjs().Default);
 	this.Layer().add(this.Image());
-	this.Members.Image.on('click', function () {
-		this.onClick();
+	this.Image().FloorHoleObj = this;
+	this.Image().on('click', function (event) {
+		event.target.FloorHoleObj.onClick({"Weapon" : Weapon});
 	});
 		if (json_params.Scale !== undefined)
 		{
@@ -1484,6 +1487,42 @@ _FloorHole.prototype.Status = function (Value)
 	}
 }
 
+_FloorHole.prototype.Health = function (Health)
+{
+	if (Health !== undefined)
+	{
+		this.Members.Health = Health;
+		console.log(this.constructor.name + " health: " + this.Members.Health);
+	} else
+	{
+		return this.Members.Health;
+	}
+}
+
+_FloorHole.prototype.Height = function (Height)
+{
+	if (Height !== undefined)
+	{
+		this.Members.Image.height(Height);
+	} else
+	{
+		return this.Members.Image.height();
+	}
+}
+
+_FloorHole.prototype.Width = function (Width)
+{
+	if (Width !== undefined)
+	{
+		this.Members.Image.width(Width);
+	} else
+	{
+		return this.Members.Image.width();
+	}
+}
+
+
+
 _FloorHole.prototype.init = function (json_params)
 {
 	if (json_params !== undefined)
@@ -1504,6 +1543,18 @@ _FloorHole.prototype.init = function (json_params)
 		{
 			this.Y(json_params.Y); 
 		}
+		if (json_params.Health !== undefined)
+		{
+			this.Health(json_params.Health); 
+		}
+		if (json_params.Width !== undefined)
+		{
+			this.Width(json_params.Width); 
+		}
+		if (json_params.Height !== undefined)
+		{
+			this.Height(json_params.Height); 
+		}
 		if (json_params.Image !== undefined)
 		{
 			this.Image(json_params.Image); 
@@ -1519,6 +1570,17 @@ _FloorHole.prototype.init = function (json_params)
 
 	}
 }
+
+// для жизни необходим список параметров инициализации!
+_FloorHole.prototype.Life = function (json_params)
+{
+	if (this.Status() == "Open")
+	{
+			this.createRat(json_params);
+	}
+}
+
+
 
 // функция создания мышей!
 
@@ -1536,7 +1598,8 @@ _FloorHole.prototype.createRat = function (json_params)
 			// возвращаем статус на открыта!
 			FloorThat.Status("Open");
 		},
-		(Math.random() * 8 + 2) * 1000);
+		// здесь параметры
+		(Math.random() * json_params.InitDatas._FloorHole.createRatTimeTo + json_params.InitDatas._FloorHole.createRatTimeFrom) * 1000);
 	// устанавливаем статус создание крысы, чтобы нас не удалили из
 	// массива!	
 	this.Status("RatCreating");
@@ -1544,10 +1607,18 @@ _FloorHole.prototype.createRat = function (json_params)
 
 
 // обработка нажатия на картинку дыры
-_FloorHole.prototype.onClick = function ()
+
+_FloorHole.prototype.onClick = function (json_params)
 {
-	this.onRepaired();
+	if(json_params !== undefined)
+	{
+		if(json_params.Weapon !== undefined)
+		{
+			json_params.Weapon.attackTarget({"Target" : this});
+		}
+	}
 }
+
 
 // обработка закалачивания
 _FloorHole.prototype.onRepaired = function (json_params)
@@ -1555,6 +1626,8 @@ _FloorHole.prototype.onRepaired = function (json_params)
 	clearTimeout(this.ratCreationTimer);
 	this.Image().image(this.ImgObjs().Repaired);
 	this.Status("Repaired");
+	this.Image().off("click");
+
 }
 // возвращает, заколочено или нет!
 _FloorHole.prototype.isRepaired = function ()
@@ -1567,6 +1640,48 @@ _FloorHole.prototype.isRepaired = function ()
 			return 0;
 		}
 }
+
+// когда крысакана атакуют
+_FloorHole.prototype.onAttackMe = function (json_params) 
+{
+	if (json_params !== undefined)
+	{
+		if (json_params.Damage)
+		{
+			this.reduceHealth({ "ReduceValue" : json_params.Damage});
+		}
+	}
+}
+
+// уменьшение здоровья!
+// и проверка, установление смерти!
+_FloorHole.prototype.reduceHealth = function (json_params)
+{
+	if (json_params !== undefined)
+	{
+		if(json_params.ReduceValue !== undefined){
+				this.Health(this.Health() - json_params.ReduceValue);	
+		}
+	}
+	if (this.Health() <= 0)
+	{
+		this.onRepaired();
+	}
+}
+// прибавление здоровья!
+_FloorHole.prototype.increaseHealth = function (json_params)
+{
+	if(json_params)
+	{
+		if(json_params.IncreaseValue){
+				this.Health(this.Health() + json_params.IncreaseValue);	
+		}
+	}
+}
+
+
+
+
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 /////////////////////		GLOBAL FUNCTIONS AND OBJECTS
@@ -1623,7 +1738,10 @@ var InitDatas = {
 		},
 		Layer: MainLayer,
 		Status: "Open",
-		Rats: Rats
+		Rats: Rats,
+		Health: 5000,
+		createRatTimeTo: 8,
+		createRatTimeFrom: 2
 	}
 };
 
@@ -1661,7 +1779,7 @@ function GameProcess ()
 		// если какая-то из дыр открыта!
 		if (FloorHoles[i].Status() == "Open")
 		{
-			FloorHoles[i].createRat({"InitDatas" : InitDatas});
+			FloorHoles[i].Life({"InitDatas" : InitDatas});
 		}
 	}
 	
@@ -1679,8 +1797,8 @@ function GameProcess ()
 
 	if (Foods.length == 0)
 	{
-		$("#GameMenu").html("Ты проиграл!");
-		$("#GameMenu").show("slow");
+		$("#GameResult").html("Ты проиграл!");
+		$("#GameResult").show("slow");
 		clearInterval(gameProcessTimer);
 	}
 

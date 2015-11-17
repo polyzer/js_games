@@ -46,6 +46,8 @@ body img
 	height: 50%;
 	background-color: red;
 	border: 1px dashed black;
+	z-index: 1001;
+	display: none;
 }
 
 #ResultBlock
