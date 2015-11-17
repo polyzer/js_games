@@ -5,49 +5,7 @@
 	<title>Cheeser! Kill rats!</title>
 	<script src='../../libs/konva.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<style>
-#GameContainer
-{
-	background: black url("../games_resources/Cheeser/images/wood_floor_1.png") repeat;
-}
-
-body img
-{
-	visible: hidden;
-}
-
-#GameStats
-{
-	text-align: center;
-	valign: center;
-	font-family: Verdana;
-}
-
-#GameMenu
-{
-	position: absolute;
-	left: 300px;
-	top: 300px;
-	width: 30%;
-	height: 30%;
-	background-color: yellow;
-	border: 3px dashed black;
-	z-index: 1000;
-	display: none;
-}
-
-#NewGame
-{
-	position: relative;
-	left: 30%;
-	top: 30%;
-	width: 50%;
-	height: 50%;
-	background-color: white;
-	border: 3px solid black;
-}
-
-</style>
+	<link rel="stylesheet" type="text/css" href="./cheeser_game_style.css" />
 </head>
 
 <body>	
@@ -64,12 +22,88 @@ body img
 	</div>
 </div>
 
+<div id="GameResult">
+	<div id="ResultBlock">
+		<div id="RatsResult">
+		</div>
+		<div id="ResultTimer">
+		</div>
+	</div>
+	<div id="RestartButton">
+	 Начать заново?
+	</div>
+</div>
+
 <script>
 	var W = 1000; // ширина
 	var H = 970; // высота
 
 	var gameProcessTimer = null;
 
+////////////////// My GameTimer CLASS////////////////////////////
+////////////////////////////////////////////////////////////////
+function _GameTimer (json_params)
+{
+	this.Members = {};
+	this.Members.CurrentTime = null;
+	this.Members.EndTime = null;
+	this.Members.CalledFunction = null;
+	// значения:
+	// free, working
+	this.Members.Status = "free";
+}
+
+_GameTimer.prototype.increaseTime = function (Value)
+{
+	if (this.Members.Status ==  "working")
+	{
+		if(Value !== undefined)
+			this.Members.CurrentTime += Value;
+	}
+}
+
+_GameTimer.prototype.checkTimer = function (Value)
+{
+	if (this.Status == "working")
+	{
+		if(this.CurrentTime >= this.Members.EndTime)
+		{
+			this.Members.CalledFunction();
+		}
+		this.Members.CurrentTime = null;
+		this.Members.EndTime = null;
+		this.Members.Status = "free";		
+	}
+}
+
+_GameTimer.prototype.set = function (json_params) 
+{
+	if(this.Status == "free")
+	{
+		if (json_params !== undefined)
+		{
+			if (json_params.EndTime !== undefined)
+			{
+				this.Members.EndTime = json_params.EndTime;
+			} else
+			{
+				console.log(this.constructor.name + " have no EndTime parameter");
+				return;
+			}
+			if (json_params.CalledFunction !== undefined)
+			{
+				this.Members.CalledFunction = json_params.CalledFunction;
+			} else
+			{
+				console.log(this.constructor.name + " have no CalledFunction parameter");
+				return;
+			}
+			this.Members.Status = "working";			
+		}
+	}
+}
+////////////////////// END OF _GameTimer CLASS /////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
 function _GameStats () { // статистика!
 		this.Div = document.createElement("div");
@@ -549,7 +583,7 @@ _Rat.prototype.Life = function (json_params)
 			}
 		}
 		// выбираем цель из полученного списка!
-		this.selectTarget(json_params);
+		this.select1of3Target(json_params);
 		// поворачиваемся к цели!
 		this.turnToTarget({"Target" : this.Target()});
 		// идем к цели
@@ -606,7 +640,7 @@ _Rat.prototype.isAtAttackDistance = function (json_params)
 // передается массив с целями, которые еще присутствуют в игре:
 // данные вида {"Targets" : targets}
 
-_Rat.prototype.selectTarget = function (json_params)
+_Rat.prototype.selectNearestTarget = function (json_params)
 {	
 	if (json_params !== undefined) // если есть входные параметры
 	{
@@ -615,7 +649,7 @@ _Rat.prototype.selectTarget = function (json_params)
 		console.log(this.constructor.name + ": selecting Target from " + json_params.Targets.length);
 			if (json_params.Targets.length == 0){ // если в массиве нет
 				
-				console.log("from _Rat.selectTarget: Targets array is empty!!!!");
+				console.log("from _Rat.selectNearestTarget: Targets array is empty!!!!");
 				return;
 			}
 			
@@ -638,6 +672,68 @@ _Rat.prototype.selectTarget = function (json_params)
 		}
 	}
 }
+
+_Rat.prototype.selectRandomTarget = function (json_params)
+{	
+	if (json_params !== undefined) // если есть входные параметры
+	{
+		if (json_params.Targets !== undefined) //если есть массив с целями
+		{
+		console.log(this.constructor.name + ": selecting Target from " + json_params.Targets.length);
+			if (json_params.Targets.length == 0){ // если в массиве нет
+				
+				console.log("from _Rat.selectRandomTarget: Targets array is empty!!!!");
+				return;
+			}
+			
+		this.Members.Target = json_params.Targets[Math.round(Math.random() * (json_params.Targets.length - 1))];
+		}
+	}
+}
+
+_Rat.prototype.select1of3Target = function (json_params)
+{	
+	if (json_params !== undefined) // если есть входные параметры
+	{
+		if (json_params.Targets !== undefined) //если есть массив с целями
+		{
+		console.log(this.constructor.name + ": selecting Target from " + json_params.Targets.length);
+			if (json_params.Targets.length == 0){ // если в массиве нет
+				
+				console.log("from _Rat.select1of3Target: Targets array is empty!!!!");
+				return;
+			}
+			if(json_params.Targets.length <= 3)
+			{
+				this.Members.Target = json_params.Targets[Math.round(Math.random() * (json_params.Targets.length - 1))];
+				return;
+			} else
+			{
+				this.timeTargArr = json_params.Targets.slice(0);
+				this.selectTimeArr = [];
+				this.nearestTargIndex = 0;
+				for (var j = 0; j < 3; j++)
+				{
+					for(var i = 0; i < this.timeTargArr.length; i++)
+					{
+						// если X + Y до новой цели меньше, чем до текущей, то меняем текущую цель на новую 
+						if(Math.abs(this.timeTargArr[i].X() - this.X()) + Math.abs(this.timeTargArr[i].Y() - this.Y()) < 
+							 Math.abs(this.timeTargArr[this.nearestTargIndex].X() - this.X()) + Math.abs(this.timeTargArr[this.nearestTargIndex].Y() - this.Y()))
+						{
+							this.nearestTargIndex = i;
+						}	
+					}
+					this.selectTimeArr.push(this.timeTargArr[this.nearestTargIndex]);
+					this.timeTargArr.splice(this.nearestTargIndex, 1);
+					this.nearestTargIndex = 0;
+				}
+				this.Members.Target = this.selectTimeArr[Math.round(Math.random() * (this.selectTimeArr.length - 1))];
+				
+			}
+		}
+	}
+}
+
 
 // данная функция рассчитывает и возвращает точку атаки, в которую нужно идти!
 // возвращается объект со следующими членами:
@@ -1662,8 +1758,8 @@ function Game() {
 	gameProcessTimer = setInterval(GameProcess, 1000);	
 };	
 
-
-	$("#GameMenu").show("slow");
+// показать Меню и ждать начала!
+	$("#GameMenu").show("fast");
 	$("#NewGame").click(function () {
 		Game();
 		$("#GameMenu").hide();

@@ -1,0 +1,60 @@
+#GameContainer
+{
+	background: black url("../games_resources/Cheeser/images/wood_floor_1.png") repeat;
+}
+
+body img
+{
+	display: none;
+}
+
+#GameStats
+{
+	text-align: center;
+	valign: center;
+	font-family: Verdana;
+}
+
+#GameMenu
+{
+	position: absolute;
+	left: 300px;
+	top: 300px;
+	width: 30%;
+	height: 30%;
+	background-color: yellow;
+	border: 3px dashed black;
+	z-index: 1000;
+	display: none;
+}
+
+#NewGame
+{
+	position: relative;
+	left: 30%;
+	top: 30%;
+	width: 50%;
+	height: 50%;
+	background-color: white;
+	border: 3px solid black;
+}
+
+#GameResult
+{
+	position: absolute;
+	width: 50%;
+	height: 50%;
+	background-color: red;
+	border: 1px dashed black;
+}
+
+#ResultBlock
+{
+	position: relative;
+	left: 30%;
+	top: 30%;
+	width: 50%;
+	height: 50%;
+	background-color: white;
+	border: 1px solid black;	
+}
