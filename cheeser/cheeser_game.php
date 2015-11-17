@@ -12,6 +12,7 @@
 <img width = "20" height = "35" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
 <img width = "20" height = "35" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
 <img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
+<img width = "40" height = "35" id="FloorHoleRepaired_img" src="../games_resources/Cheeser/images/floor_hole_repaired.png" />
 <img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
 <img width = "20" height = "15" id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
 <img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
@@ -39,6 +40,8 @@
 	var H = 970; // высота
 
 	var gameProcessTimer = null;
+	// режим игры!
+	var GAMEMODE = "survival";
 
 ////////////////// My GameTimer CLASS////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -1734,7 +1737,7 @@ var InitDatas = {
 	_FloorHole : {
 		ImgObjs:{
 			Default: document.getElementById("FloorHole_img"),
-			Repaired: document.getElementById("FloorHole_img")
+			Repaired: document.getElementById("FloorHoleRepaired_img")
 		},
 		Layer: MainLayer,
 		Status: "Open",
