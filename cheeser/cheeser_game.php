@@ -18,20 +18,22 @@
 <img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
 
 <div id="GameMenu">
-	<div id="NewGame">
+	<div id="SurvivalGame">
 		Выживание!
 	</div>
 </div>
 
 <div id="GameResult">
+	<div id="ResultStatus">
+	</div>
 	<div id="ResultBlock">
-		<div id="RatsResult">
+		<div id="RatsKilledResult">
 		</div>
-		<div id="ResultTimer">
+		<div id="TimeResult">
 		</div>
 	</div>
 	<div id="RestartButton">
-	 Начать заново?
+	 Еще?
 	</div>
 </div>
 
@@ -42,18 +44,68 @@
 	var gameProcessTimer = null;
 	// режим игры!
 	var GAMEMODE = "survival";
+	
+function clone(obj) {
+    var copy;
+
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}	
+	
 
 ////////////////// My GameTimer CLASS////////////////////////////
 ////////////////////////////////////////////////////////////////
+// json_params:
+// {
+//	StartTime: 0,
+//	EndTime: 5,
+//	FuncContext: this,
+//	Parameters: {}
+//	CalledFunction : function() {}
+// }
 function _GameTimer (json_params)
 {
 	this.Members = {};
 	this.Members.CurrentTime = null;
 	this.Members.EndTime = null;
 	this.Members.CalledFunction = null;
+	this.Members.FuncResultAnswer = null;
+	this.Members.FuncContext = null;
+	this.Members.Parameters = null;
 	// значения:
 	// free, working
 	this.Members.Status = "free";
+	if (json_params !== undefined)
+	{
+		this.set();
+	}
 }
 
 _GameTimer.prototype.increaseTime = function (Value)
@@ -101,7 +153,14 @@ _GameTimer.prototype.set = function (json_params)
 				console.log(this.constructor.name + " have no CalledFunction parameter");
 				return;
 			}
-			this.Members.Status = "working";			
+			if (json_params.StartTime !== undefined)
+			{
+				this.Members.CurrentTime = json_params.StartTime;
+			} else
+			{
+				console.log(this.constructor.name + " have no StartTime parameter");
+				return;
+			}			this.Members.Status = "working";			
 		}
 	}
 }
@@ -198,6 +257,16 @@ _GameStats.prototype.reduceFloorHolesCounter = function ()
 {
 	this.FloorHolesCounter--;
 	this.updateDivs();
+}
+
+_GameStats.prototype.clearStats = function ()
+{
+		this.RatsKilledCounter = 0; // счетчик убитых крыс
+		this.FoodsCounter = 0; // счетчик оставшейся пищи
+		this.FloorHolesCounter = 0; // количество дыр!
+		
+		this.Timer = 0; // таймер, засекающий время продолжительности игры.
+		this.updateDivs();
 }
 
 var gamestats = new _GameStats();
@@ -586,7 +655,7 @@ _Rat.prototype.Life = function (json_params)
 			}
 		}
 		// выбираем цель из полученного списка!
-		this.select1of3Target(json_params);
+		this.select1of5Target(json_params);
 		// поворачиваемся к цели!
 		this.turnToTarget({"Target" : this.Target()});
 		// идем к цели
@@ -694,7 +763,7 @@ _Rat.prototype.selectRandomTarget = function (json_params)
 	}
 }
 
-_Rat.prototype.select1of3Target = function (json_params)
+_Rat.prototype.select1of5Target = function (json_params)
 {	
 	if (json_params !== undefined) // если есть входные параметры
 	{
@@ -706,7 +775,7 @@ _Rat.prototype.select1of3Target = function (json_params)
 				console.log("from _Rat.select1of3Target: Targets array is empty!!!!");
 				return;
 			}
-			if(json_params.Targets.length <= 3)
+			if(json_params.Targets.length <= 5)
 			{
 				this.Members.Target = json_params.Targets[Math.round(Math.random() * (json_params.Targets.length - 1))];
 				return;
@@ -715,7 +784,7 @@ _Rat.prototype.select1of3Target = function (json_params)
 				this.timeTargArr = json_params.Targets.slice(0);
 				this.selectTimeArr = [];
 				this.nearestTargIndex = 0;
-				for (var j = 0; j < 3; j++)
+				for (var j = 0; j < 5; j++)
 				{
 					for(var i = 0; i < this.timeTargArr.length; i++)
 					{
@@ -1690,20 +1759,17 @@ _FloorHole.prototype.increaseHealth = function (json_params)
 /////////////////////		GLOBAL FUNCTIONS AND OBJECTS
 ///////////////////////////////////////////////////////////////////
 
-
-var MainLayer = new Konva.Layer();
-// массивы объектов!
-var Rats = [];
-var FloorHoles = [];
-var Foods = [];
-
-// нужен только один экземпляр.
-// по умолчанию объект Weapon будет
-// создавать из класса _Hammer
+var GameContainer = null;
+var MainStage = null;
+var MainLayer = null;
+var Rats = null;
+var FloorHoles = null;
+var Foods = null;
 var Weapon = null; // это оружие
-
+var InitDatas = null;
 ////////////////////////////////////////////////////////////////////
-var InitDatas = {
+
+var DefaultInitDatas = {
 	_Rat : {
 		Health: 170,
 		ImgObjs: {
@@ -1718,7 +1784,7 @@ var InitDatas = {
 		Step: 2,
 		Damage: 60,
 		DamageFactor: 1,
-		Layer: MainLayer,
+		Layer: null,
 		Status: "Live"
 	},
 	_Food : {
@@ -1728,7 +1794,7 @@ var InitDatas = {
 			Eaten: document.getElementById("Crumbs_img"),
 		},
 		Status: "NotEaten",
-		Layer: MainLayer
+		Layer: null
 	},
 	_Hammer : {
 		Damage: 50,
@@ -1739,9 +1805,9 @@ var InitDatas = {
 			Default: document.getElementById("FloorHole_img"),
 			Repaired: document.getElementById("FloorHoleRepaired_img")
 		},
-		Layer: MainLayer,
+		Layer: null,
 		Status: "Open",
-		Rats: Rats,
+		Rats: null,
 		Health: 5000,
 		createRatTimeTo: 8,
 		createRatTimeFrom: 2
@@ -1765,6 +1831,51 @@ function createFood(InitDatas, Foods, W, H)
 	Foods.push(new _Food(InitDatas._Food));
 	gamestats.increaseFoodsCounter();
 }
+
+
+
+
+function showGameMenu (json_params)
+{
+		$("#GameMenu").show("slow");
+		$("#SurvivalGame").on("click", function () {
+			$("#GameMenu").hide();
+			GAMEMODE = "survival";
+			gamestats.clearStats();
+			Game();
+		});
+		$("#GameResult").hide();
+}
+
+function showGameResult (json_params)
+{
+	if(json_params !== undefined)
+	{
+		if (json_params.Status == "win")
+		{
+			$("#ResultStatus").html("Победа!");
+			$("#ResultStatus").animate({backgroundColor : "#20e80e"}, 1000);
+		} else
+		{
+			$("#ResultStatus").html("Проигрыш...");
+			$("#ResultStatus").animate({backgroundColor : "#cc0000"}, 1000);
+		}
+		
+		$("#RatsKilled").html("Крыс убито: " + json_params.Stats.RatsKilledCounter);
+		$("#TimeResult").html("Время: " + json_params.Stats.Timer);
+		$("#GameResult").show("slow");
+		$("#RestartButton").on("click", function () {
+			$("#GameResult").hide("slow");
+			showGameMenu();
+		});
+
+	} else
+	{
+		console.log("showGameResult function have no parameters!");
+	}	
+}
+
+
 // функция обработки игрового процесса!
 // будет вызываться постоянно!
 // если вся пища съедена - конец игры
@@ -1800,8 +1911,12 @@ function GameProcess ()
 
 	if (Foods.length == 0)
 	{
-		$("#GameResult").html("Ты проиграл!");
-		$("#GameResult").show("slow");
+		showGameResult({"Status" : "loss", "Stats" : gamestats});
+		clearInterval(gameProcessTimer);
+	} else 
+	if (Foods.length != 0 && FloorHoles.length ==	0)
+	{
+		showGameResult({"Status" : "win", "Stats" : gamestats});
 		clearInterval(gameProcessTimer);
 	}
 
@@ -1818,42 +1933,10 @@ function GameProcess ()
 
 // инициализация игры
 // создание пищи, первой дыры в полу!
-function GameInit()
+function GameInit(json_params)
 {
-	if (FloorHoles.length == 0)
-	{
-		createFloorHole(InitDatas, FloorHoles, W, H);
-		createFloorHole(InitDatas, FloorHoles, W, H);
-		createFloorHole(InitDatas, FloorHoles, W, H);
-
-
-	}
-	if (Foods.length == 0)
-	{
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-		createFood(InitDatas, Foods, W, H);
-	}
-	Weapon = new _Hammer(InitDatas._Hammer);
-	MainLayer.draw();	
-}
-
-	var GameContainer; // контейнер игры!
+	if (GameContainer != null)
+		document.body.removeChild(GameContainer);
 	GameContainer = document.createElement("div");
 	GameContainer.setAttribute("id", "GameContainer");
 	GameContainer.style.position = "absolute";
@@ -1863,29 +1946,59 @@ function GameInit()
 	GameContainer.style.height = H + "px";
 	document.body.appendChild(GameContainer);
 	
-	var MainStage = new Konva.Stage({
+	MainStage = new Konva.Stage({
 			container: 'GameContainer',
 			width: W,
 			height: H
 	});
-
-function Game() {
-
+	
+	MainLayer = new Konva.Layer();
+	// массивы объектов!
+	
 	MainStage.add(MainLayer);
 	MainLayer.draw();
 	
-	// GameProcess
-	GameInit();
-	gameProcessTimer = setInterval(GameProcess, 1000);	
+	Rats = [];
+	FloorHoles = [];
+	Foods = [];
+
+	// нужен только один экземпляр.
+	// по умолчанию объект Weapon будет
+	// создавать из класса _Hammer
+	Weapon = null; // это оружие
+
+	InitDatas = jQuery.extend(true, {}, DefaultInitDatas);
+	InitDatas._Rat.Layer = MainLayer;
+	InitDatas._FloorHole.Layer = MainLayer;
+	InitDatas._Food.Layer = MainLayer;
+	InitDatas._FloorHole.Rats = Rats;
+	
+	if (json_params.GameMode == "survival") 
+	{
+		if (json_params.FloorHolesCount !== undefined)
+		{	
+			for (var i = 0; i < json_params.FloorHolesCount; i++)
+				createFloorHole(InitDatas, FloorHoles, W, H);
+		}
+		if (json_params.FoodsCount !== undefined)
+		{	
+			for (var i = 0; i < json_params.FoodsCount; i++)
+			createFood(InitDatas, Foods, W, H);
+		}
+	}
+	
+	Weapon = new _Hammer(InitDatas._Hammer);
+	MainLayer.draw();	
+}
+
+function Game() {
+
+	GameInit({"GameMode" : GAMEMODE, "FloorHolesCount" : 1, "FoodsCount" : 1});
+	gameProcessTimer = setInterval(function () {GameProcess();}, 1000);	
 };	
 
-// показать Меню и ждать начала!
-	$("#GameMenu").show("fast");
-	$("#NewGame").click(function () {
-		Game();
-		$("#GameMenu").hide();
-	});
-
+//showGameMenu();
+showGameResult({"Status" : "win", "Stats" : gamestats});
 
 </script>
 

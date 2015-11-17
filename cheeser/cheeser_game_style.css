@@ -3,6 +3,11 @@
 	background: black url("../games_resources/Cheeser/images/wood_floor_1.png") repeat;
 }
 
+body
+{
+	font-family: Verdana;	
+}
+
 body img
 {
 	display: none;
@@ -11,8 +16,6 @@ body img
 #GameStats
 {
 	text-align: center;
-	valign: center;
-	font-family: Verdana;
 }
 
 #GameMenu
@@ -42,21 +45,46 @@ body img
 #GameResult
 {
 	position: absolute;
-	width: 50%;
+	width: 40%;
 	height: 50%;
 	background-color: red;
 	border: 1px dashed black;
-	z-index: 1001;
+	z-index: 10010;
 	display: none;
 }
 
+#ResultStatus
+{
+	width: 100%;
+	height: 30%;
+	background-color: green;
+}
 #ResultBlock
 {
 	position: relative;
 	left: 30%;
 	top: 30%;
 	width: 50%;
-	height: 50%;
+	height: 40%;
 	background-color: white;
 	border: 1px solid black;	
+}
+#ResultBlock #RatsKilledResult
+{
+	width: 100%;
+	height: 50%;
+	background-color: yellow;
+}
+#ResultBlock #TimeResult
+{
+	width: 100%;
+	height: 50%;
+	background-color: blue;
+}
+
+#RestartButton
+{
+	height: 30%;
+	width: 100%;
+	background-color: white;
 }
