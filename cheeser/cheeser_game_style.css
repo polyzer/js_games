@@ -21,16 +21,32 @@ body img
 #GameMenu
 {
 	position: absolute;
-	left: 300px;
-	top: 300px;
+	left: 20%;
+	top: 20%;
 	width: 30%;
 	height: 30%;
-	background-color: yellow;
+	background-color: #404d59;
 	border: 3px dashed black;
 	z-index: 1000;
 	display: none;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
+	cursor: pointer;
 }
 
+#GameResult
+{
+	
+	position: absolute;
+	left: 20%;
+	top: 20%;
+	width: 40%;
+	height: 50%;
+	background-color: red;
+	border: 1px dashed black;
+	z-index: 10010;
+	display: none;
+	box-shadow: 2px black;
+}
 #NewGame
 {
 	position: relative;
@@ -42,16 +58,6 @@ body img
 	border: 3px solid black;
 }
 
-#GameResult
-{
-	position: absolute;
-	width: 40%;
-	height: 50%;
-	background-color: red;
-	border: 1px dashed black;
-	z-index: 10010;
-	display: none;
-}
 
 #ResultStatus
 {
@@ -64,7 +70,6 @@ body img
 	width: 100%;
 	height: 40%;
 	background-color: white;
-	border: 1px solid black;	
 }
 #ResultBlock #RatsKilledResult
 {
@@ -84,4 +89,11 @@ body img
 	height: 30%;
 	width: 100%;
 	background-color: white;
+}
+
+.Text
+{
+	font-size: 200%; 
+	position: relative;
+	margin: auto;
 }

@@ -19,24 +19,36 @@
 
 <div id="GameMenu">
 	<div id="SurvivalGame">
+		<div id="SurvivalGameText" class="Text">
 		Выживание!
+		</div>
 	</div>
 	<div id="LevelGame">
+		<div id="LevelGameText" class="Text">
 		Уровни!
+		</div>
 	</div>
 </div>
 
 <div id="GameResult">
 	<div id="ResultStatus">
+		<div id="ResultStatusText" class="Text">
+		</div>
 	</div>
 	<div id="ResultBlock">
 		<div id="RatsKilledResult">
+			<div id="RatsKilledResultText" class="Text">
+			</div>
 		</div>
 		<div id="TimeResult">
+			<div id="TimeResultText" class="Text">
+			</div>
 		</div>
 	</div>
 	<div id="RestartButton">
-	 Еще?
+		<div id="RestartButtonText" class="Text">
+		Еще?
+		</div>
 	</div>
 </div>
 
@@ -202,7 +214,7 @@ _GameStats.prototype.updateDivs = function ()
 	this.RatsKilledDiv.innerHTML = "Крыс убито: " + this.RatsKilledCounter;
 	this.FoodsDiv.innerHTML = "Пищи осталось: " + this.FoodsCounter;
 	this.FloorHolesDiv.innerHTML = "Дыр в полу: " + this.FloorHolesCounter;
-	this.TimerDiv.innerHTML = "Времы: " + this.Timer;
+	this.TimerDiv.innerHTML = "Время: " + this.Timer;
 }
 
 _GameStats.prototype.increaseRatsKilledCounter = function () 
@@ -1741,11 +1753,11 @@ _FloorHole.prototype.increaseHealth = function (json_params)
 
 function SurvivalModeParameters () {
 	
-	this.TimeForCreateNewFloorHole = 45;
+	this.TimeForCreateNewFloorHole = 30;
 	this.KilledRatsCountForCreateNewFood = 10;
 	this.CurrentLevelNumber = null;
 	this.StartFloorHolesCount = 2;
-	this.StartFoodsCount = 2;
+	this.StartFoodsCount = 15;
 	this.InitDatasFloorHoleHealthStep = 50;
 	this.InitDatasFloorHoleHealthStepTime = 30;
 	this.InitDatasRatHealthStep = 25;
@@ -1876,16 +1888,16 @@ function showGameResult (json_params)
 	{
 		if (json_params.Status == "win")
 		{
-			$("#ResultStatus").html("Победа!");
-			$("#ResultStatus").animate({backgroundColor : "#20e80e"}, 1000);
+			$("#ResultStatusText").html("Победа!");
+			$("#ResultStatusText").animate({backgroundColor : "#20e80e"}, 1000);
 		} else
 		{
-			$("#ResultStatus").html("Проигрыш...");
-			$("#ResultStatus").animate({backgroundColor : "#cc0000"}, 1000);
+			$("#ResultStatusText").html("Проигрыш...");
+			$("#ResultStatusText").animate({backgroundColor : "#cc0000"}, 1000);
 		}
 		
-		$("#RatsKilled").html("Крыс убито: " + json_params.Stats.RatsKilledCounter);
-		$("#TimeResult").html("Время: " + json_params.Stats.Timer);
+		$("#RatsKilledResultText").html("Крыс убито: " + json_params.Stats.RatsKilledCounter);
+		$("#TimeResultText").html("Время: " + json_params.Stats.Timer);
 		$("#GameResult").show("slow");
 		$("#RestartButton").on("click", function () {
 			$("#GameResult").hide("slow");
@@ -2059,7 +2071,6 @@ function Game() {
 							"FloorHolesCount" : CurrentLevelModeParameters.CurrentLevelNumber,
 							"FoodsCount": Math.round(CurrentLevelModeParameters.CurrentLevelNumber * 1.6)}); // количество пищи в зависимости от уровня!
 	}
-	window.alert("Game");
 	gameProcessTimer = setInterval(
 	function () {
 		if (GAMEMODE == "survival")
