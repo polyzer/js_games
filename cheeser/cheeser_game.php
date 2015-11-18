@@ -21,6 +21,9 @@
 	<div id="SurvivalGame">
 		Выживание!
 	</div>
+	<div id="LevelGame">
+		Уровни!
+	</div>
 </div>
 
 <div id="GameResult">
@@ -40,9 +43,19 @@
 <script>
 	var W = 1000; // ширина
 	var H = 970; // высота
+	
+	var GameContainer = null; // контейнер игры
+	var MainStage = null; // уровень
+	var MainLayer = null; // главный слой
+	var Rats = null; // массив мышей
+	var FloorHoles = null; // массив дыр
+	var Foods = null; // массив для пищи
+	var Weapon = null; // это оружие
+	var InitDatas = null; // объект, в котором будут храниться данные инициализации
 
-	var gameProcessTimer = null;
+	var gameProcessTimer = null; // для setInterval
 	// режим игры!
+	// survival, level
 	var GAMEMODE = "survival";
 	
 function clone(obj) {
@@ -212,6 +225,7 @@ function _GameStats () { // статистика!
 		this.FloorHolesCounter = 0; // количество дыр!
 		
 		this.Timer = 0; // таймер, засекающий время продолжительности игры.
+		this.FPS = 1; // FPS, в секундах!
 		
 		this.updateDivs();
 };
@@ -257,6 +271,11 @@ _GameStats.prototype.reduceFloorHolesCounter = function ()
 {
 	this.FloorHolesCounter--;
 	this.updateDivs();
+}
+
+_GameStats.prototype.increaseTimer = function (Value)
+{
+	this.Timer += Value;
 }
 
 _GameStats.prototype.clearStats = function ()
@@ -1751,23 +1770,51 @@ _FloorHole.prototype.increaseHealth = function (json_params)
 	}
 }
 
+function SurvivalModeParameters () {
+	
+	this.TimeForCreateNewFloorHole = 45;
+	this.KilledRatsCountForCreateNewFood = 10;
+	this.CurrentLevelNumber = null;
+	this.StartFloorHolesCount = 2;
+	this.StartFoodsCount = 2;
+	this.InitDatasFloorHoleHealthStep = 50;
+	this.InitDatasFloorHoleHealthStepTime = 30;
+	this.InitDatasRatHealthStep = 25;
+	this.InitDatasRatHealthStepTime = 30;
+	this.InitDatasFoodHealthStep = 30;
+	this.InitDatasFoodHealthStepTime = 30;
+};
 
+function LevelModeParameters () {
+	
+	this.TimeForCreateNewFloorHole = null;
+	this.KilledRatsCountForCreateNewFood = 10;
+	this.CurrentLevelNumber = 1;
+	this.StartFloorHoleCount = null;
+	this.StartFoodsCount = 2;
+	this.InitDatasFloorHoleHealthStep = 50;
+	this.InitDatasFloorHoleHealthStepTime = 30;
+	this.InitDatasRatHealthStep = 30;
+	this.InitDatasRatHealthStepTime = 30;
+	this.InitDatasFoodHealthStep = 30;
+	this.InitDatasFoodHealthStepTime = 30;
 
+};
+LevelModeParameters.prototype.increaseCurrentLevelNumber = function ()
+{
+	this.CurrentLevelNumber++;
+}
+
+var CurrentSurvivalModeParameters = new SurvivalModeParameters();
+var CurrentLevelModeParameters = new LevelModeParameters();
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 /////////////////////		GLOBAL FUNCTIONS AND OBJECTS
 ///////////////////////////////////////////////////////////////////
 
-var GameContainer = null;
-var MainStage = null;
-var MainLayer = null;
-var Rats = null;
-var FloorHoles = null;
-var Foods = null;
-var Weapon = null; // это оружие
-var InitDatas = null;
 ////////////////////////////////////////////////////////////////////
+
 
 var DefaultInitDatas = {
 	_Rat : {
@@ -1808,7 +1855,7 @@ var DefaultInitDatas = {
 		Layer: null,
 		Status: "Open",
 		Rats: null,
-		Health: 5000,
+		Health: 3000,
 		createRatTimeTo: 8,
 		createRatTimeFrom: 2
 	}
@@ -1841,6 +1888,12 @@ function showGameMenu (json_params)
 		$("#SurvivalGame").on("click", function () {
 			$("#GameMenu").hide();
 			GAMEMODE = "survival";
+			gamestats.clearStats();
+			Game();
+		});
+		$("#LevelGame").on("click", function () {
+			$("#GameMenu").hide();
+			GAMEMODE = "level";
 			gamestats.clearStats();
 			Game();
 		});
@@ -1879,9 +1932,33 @@ function showGameResult (json_params)
 // функция обработки игрового процесса!
 // будет вызываться постоянно!
 // если вся пища съедена - конец игры
-function GameProcess ()
+function GameProcess (json_params)
 {
-	
+	gamestats.increaseTimer(gamestats.FPS);
+	if (json_params.CurrentGameParams !== "undefined")
+	{
+		if (gamestats.Timer % json_params.CurrentGameParams.InitDatasRatHealthStepTime  == 0)
+		{
+			InitDatas._Rat.Health += json_params.CurrentGameParams.InitDatasRatHealthStep;
+		}
+		if (gamestats.Timer % json_params.CurrentGameParams.InitDatasFloorHoleHealthStepTime  == 0)
+		{
+			InitDatas._FloorHole.Health += json_params.CurrentGameParams.InitDatasFloorHoleHealthStep;
+		}
+		if (gamestats.Timer % json_params.CurrentGameParams.InitDatasFoodHealthStepTime  == 0)
+		{
+			InitDatas._Food.Health += json_params.CurrentGameParams.InitDatasFoodHealthStep;
+		}
+		if( (json_params.GameMode == "survival") && ((gamestats.Timer % json_params.CurrentGameParams.TimeForCreateNewFloorHole) == 0))	
+		{
+			createFloorHole(InitDatas, FloorHoles, W, H);
+		}	
+		if( gamestats.RatsKilledCounter != 0 && gamestats.RatsKilledCounter % json_params.CurrentGameParams.KilledRatsCountForCreateNewFood == 0)
+		{
+			createFood(InitDatas, Foods, W, H);
+		}
+	}
+		
 	for(var i = 0; i < FloorHoles.length; i++)
 	{
 		// если какая-то из дыр заколочена - удаляем из массива ее!
@@ -1914,7 +1991,7 @@ function GameProcess ()
 		showGameResult({"Status" : "loss", "Stats" : gamestats});
 		clearInterval(gameProcessTimer);
 	} else 
-	if (Foods.length != 0 && FloorHoles.length ==	0)
+	if (Foods.length != 0 && FloorHoles.length ==	0 && json_params.GameMode == "level")
 	{
 		showGameResult({"Status" : "win", "Stats" : gamestats});
 		clearInterval(gameProcessTimer);
@@ -1929,6 +2006,7 @@ function GameProcess ()
 		}
 	}
 	MainLayer.draw();
+	
 }	
 
 // инициализация игры
@@ -1973,8 +2051,6 @@ function GameInit(json_params)
 	InitDatas._Food.Layer = MainLayer;
 	InitDatas._FloorHole.Rats = Rats;
 	
-	if (json_params.GameMode == "survival") 
-	{
 		if (json_params.FloorHolesCount !== undefined)
 		{	
 			for (var i = 0; i < json_params.FloorHolesCount; i++)
@@ -1985,16 +2061,36 @@ function GameInit(json_params)
 			for (var i = 0; i < json_params.FoodsCount; i++)
 			createFood(InitDatas, Foods, W, H);
 		}
-	}
 	
 	Weapon = new _Hammer(InitDatas._Hammer);
 	MainLayer.draw();	
 }
 
 function Game() {
-
-	GameInit({"GameMode" : GAMEMODE, "FloorHolesCount" : 1, "FoodsCount" : 1});
-	gameProcessTimer = setInterval(function () {GameProcess();}, 1000);	
+	if (GAMEMODE == "survival")
+	{
+		GameInit({"GameMode" : GAMEMODE, 
+							"FloorHolesCount" : CurrentSurvivalModeParameters.StartFloorHolesCount,
+							"FoodsCount": CurrentSurvivalModeParameters.StartFoodsCount});
+	}else
+	if (GAMEMODE == "level")
+	{
+		GameInit({"GameMode" : GAMEMODE, 
+							"FloorHolesCount" : CurrentLevelModeParameters.CurrentLevelNumber,
+							"FoodsCount": Math.round(CurrentLevelModeParameters.CurrentLevelNumber * 1.6)}); // количество пищи в зависимости от уровня!
+	}
+	
+	gameProcessTimer = setInterval(
+	function () {
+		if (GAMEMODE == "survival")
+		{
+			GameProcess({"GameMode" : GAMEMODE, "CurrentGameParams" : CurrentSurvivalModeParameters});
+		}
+		if (GAMEMODE == "level")
+		{
+			GameProcess({"GameMode" : GAMEMODE, "CurrentGameParams" : CurrentLevelModeParameters});
+		}	
+	}, gamestats.FPS * 1000);	
 };	
 
 //showGameMenu();
