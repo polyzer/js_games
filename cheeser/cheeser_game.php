@@ -57,41 +57,6 @@
 	// режим игры!
 	// survival, level
 	var GAMEMODE = "survival";
-	
-function clone(obj) {
-    var copy;
-
-    // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj) return obj;
-
-    // Handle Date
-    if (obj instanceof Date) {
-        copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-    }
-
-    // Handle Array
-    if (obj instanceof Array) {
-        copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-            copy[i] = clone(obj[i]);
-        }
-        return copy;
-    }
-
-    // Handle Object
-    if (obj instanceof Object) {
-        copy = {};
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-        }
-        return copy;
-    }
-
-    throw new Error("Unable to copy obj! Its type isn't supported.");
-}	
-	
 
 ////////////////// My GameTimer CLASS////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -221,6 +186,8 @@ function _GameStats () { // статистика!
 		this.Div.appendChild(this.TimerDiv);		
 		
 		this.RatsKilledCounter = 0; // счетчик убитых крыс
+		// этот параметр должен контролировать создание только 1 сыра!
+		this.LastFoodAddRatsKilledCount = 0;
 		this.FoodsCounter = 0; // счетчик оставшейся пищи
 		this.FloorHolesCounter = 0; // количество дыр!
 		
@@ -235,6 +202,7 @@ _GameStats.prototype.updateDivs = function ()
 	this.RatsKilledDiv.innerHTML = "Крыс убито: " + this.RatsKilledCounter;
 	this.FoodsDiv.innerHTML = "Пищи осталось: " + this.FoodsCounter;
 	this.FloorHolesDiv.innerHTML = "Дыр в полу: " + this.FloorHolesCounter;
+	this.TimerDiv.innerHTML = "Времы: " + this.Timer;
 }
 
 _GameStats.prototype.increaseRatsKilledCounter = function () 
@@ -1935,6 +1903,8 @@ function showGameResult (json_params)
 function GameProcess (json_params)
 {
 	gamestats.increaseTimer(gamestats.FPS);
+	gamestats.updateDivs();
+	
 	if (json_params.CurrentGameParams !== "undefined")
 	{
 		if (gamestats.Timer % json_params.CurrentGameParams.InitDatasRatHealthStepTime  == 0)
@@ -1953,9 +1923,14 @@ function GameProcess (json_params)
 		{
 			createFloorHole(InitDatas, FloorHoles, W, H);
 		}	
-		if( gamestats.RatsKilledCounter != 0 && gamestats.RatsKilledCounter % json_params.CurrentGameParams.KilledRatsCountForCreateNewFood == 0)
+		// алгоритм допускает создание множества сыров!!!
+		if((gamestats.RatsKilledCounter != 0) && 
+			 ((gamestats.RatsKilledCounter % json_params.CurrentGameParams.KilledRatsCountForCreateNewFood) == 0)&&
+			  gamestats.LastFoodAddRatsKilledCount != gamestats.RatsKilledCounter)
 		{
 			createFood(InitDatas, Foods, W, H);
+			// не даем создавать доп пищу!
+			gamestats.LastFoodAddRatsKilledCount = gamestats.RatsKilledCounter;
 		}
 	}
 		
