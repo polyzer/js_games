@@ -251,8 +251,8 @@ _GameStats.prototype.clearStats = function ()
 		this.RatsKilledCounter = 0; // счетчик убитых крыс
 		this.FoodsCounter = 0; // счетчик оставшейся пищи
 		this.FloorHolesCounter = 0; // количество дыр!
-		
 		this.Timer = 0; // таймер, засекающий время продолжительности игры.
+		this.LastFoodAddRatsKilledCount = 0;
 		this.updateDivs();
 }
 
@@ -898,6 +898,7 @@ _Rat.prototype.reduceSpeed = function (json_params)
 _Rat.prototype.onKill = function (json_params) 
 {
 	this.Image().image(this.ImgObjs().Dead);
+	this.Image().draw();
 	if(this.comeTween !== undefined)
 	{
 		this.comeTween.pause();
@@ -1846,13 +1847,9 @@ function createFood(InitDatas, Foods, W, H)
 	Foods.push(new _Food(InitDatas._Food));
 	gamestats.increaseFoodsCounter();
 }
-
-
-
-
-function showGameMenu (json_params)
-{
-		$("#GameMenu").show("slow");
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// установка обработчика событий!!! 
+// должна быть только один раз!
 		$("#SurvivalGame").on("click", function () {
 			$("#GameMenu").hide();
 			GAMEMODE = "survival";
@@ -1865,6 +1862,11 @@ function showGameMenu (json_params)
 			gamestats.clearStats();
 			Game();
 		});
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+function showGameMenu (json_params)
+{
+		$("#GameMenu").show("slow");
 		$("#GameResult").hide();
 }
 
@@ -1902,6 +1904,7 @@ function showGameResult (json_params)
 // если вся пища съедена - конец игры
 function GameProcess (json_params)
 {
+	console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	gamestats.increaseTimer(gamestats.FPS);
 	gamestats.updateDivs();
 	
@@ -1963,13 +1966,15 @@ function GameProcess (json_params)
 
 	if (Foods.length == 0)
 	{
-		showGameResult({"Status" : "loss", "Stats" : gamestats});
 		clearInterval(gameProcessTimer);
+		showGameResult({"Status" : "loss", "Stats" : gamestats});
 	} else 
 	if (Foods.length != 0 && FloorHoles.length ==	0 && json_params.GameMode == "level")
 	{
-		showGameResult({"Status" : "win", "Stats" : gamestats});
 		clearInterval(gameProcessTimer);
+		// увеличение номера уровня!
+		CurrentLevelModeParameters.increaseCurrentLevelNumber();
+		showGameResult({"Status" : "win", "Stats" : gamestats});
 	}
 
 	for(var i = 0; i < Foods.length; i++)
@@ -2054,7 +2059,7 @@ function Game() {
 							"FloorHolesCount" : CurrentLevelModeParameters.CurrentLevelNumber,
 							"FoodsCount": Math.round(CurrentLevelModeParameters.CurrentLevelNumber * 1.6)}); // количество пищи в зависимости от уровня!
 	}
-	
+	window.alert("Game");
 	gameProcessTimer = setInterval(
 	function () {
 		if (GAMEMODE == "survival")
