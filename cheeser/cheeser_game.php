@@ -18,14 +18,19 @@
 <img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
 
 <div id="GameMenu">
+	<div id="GameHeader">
+		<div id="GameHeaderText" class="Text">
+		KILL RATS
+		</div>
+	</div>
 	<div id="SurvivalGame">
 		<div id="SurvivalGameText" class="Text">
-		Выживание!
+		Выживание
 		</div>
 	</div>
 	<div id="LevelGame">
 		<div id="LevelGameText" class="Text">
-		Уровни!
+		Уровень: 
 		</div>
 	</div>
 </div>
@@ -69,6 +74,48 @@
 	// режим игры!
 	// survival, level
 	var GAMEMODE = "survival";
+	
+	
+	
+	
+function SurvivalModeParameters () {
+	
+	this.TimeForCreateNewFloorHole = 30;
+	this.KilledRatsCountForCreateNewFood = 10;
+	this.CurrentLevelNumber = null;
+	this.StartFloorHolesCount = 2;
+	this.StartFoodsCount = 15;
+	this.InitDatasFloorHoleHealthStep = 50;
+	this.InitDatasFloorHoleHealthStepTime = 30;
+	this.InitDatasRatHealthStep = 25;
+	this.InitDatasRatHealthStepTime = 30;
+	this.InitDatasFoodHealthStep = 30;
+	this.InitDatasFoodHealthStepTime = 30;
+};
+
+function LevelModeParameters () {
+	
+	this.TimeForCreateNewFloorHole = null;
+	this.KilledRatsCountForCreateNewFood = 10;
+	this.CurrentLevelNumber = 1;
+	this.StartFloorHoleCount = null;
+	this.StartFoodsCount = 2;
+	this.InitDatasFloorHoleHealthStep = 50;
+	this.InitDatasFloorHoleHealthStepTime = 30;
+	this.InitDatasRatHealthStep = 30;
+	this.InitDatasRatHealthStepTime = 30;
+	this.InitDatasFoodHealthStep = 30;
+	this.InitDatasFoodHealthStepTime = 30;
+
+};
+LevelModeParameters.prototype.increaseCurrentLevelNumber = function ()
+{
+	this.CurrentLevelNumber++;
+}
+
+var CurrentSurvivalModeParameters = new SurvivalModeParameters();
+var CurrentLevelModeParameters = new LevelModeParameters();
+	
 
 ////////////////// My GameTimer CLASS////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -1751,43 +1798,6 @@ _FloorHole.prototype.increaseHealth = function (json_params)
 	}
 }
 
-function SurvivalModeParameters () {
-	
-	this.TimeForCreateNewFloorHole = 30;
-	this.KilledRatsCountForCreateNewFood = 10;
-	this.CurrentLevelNumber = null;
-	this.StartFloorHolesCount = 2;
-	this.StartFoodsCount = 15;
-	this.InitDatasFloorHoleHealthStep = 50;
-	this.InitDatasFloorHoleHealthStepTime = 30;
-	this.InitDatasRatHealthStep = 25;
-	this.InitDatasRatHealthStepTime = 30;
-	this.InitDatasFoodHealthStep = 30;
-	this.InitDatasFoodHealthStepTime = 30;
-};
-
-function LevelModeParameters () {
-	
-	this.TimeForCreateNewFloorHole = null;
-	this.KilledRatsCountForCreateNewFood = 10;
-	this.CurrentLevelNumber = 1;
-	this.StartFloorHoleCount = null;
-	this.StartFoodsCount = 2;
-	this.InitDatasFloorHoleHealthStep = 50;
-	this.InitDatasFloorHoleHealthStepTime = 30;
-	this.InitDatasRatHealthStep = 30;
-	this.InitDatasRatHealthStepTime = 30;
-	this.InitDatasFoodHealthStep = 30;
-	this.InitDatasFoodHealthStepTime = 30;
-
-};
-LevelModeParameters.prototype.increaseCurrentLevelNumber = function ()
-{
-	this.CurrentLevelNumber++;
-}
-
-var CurrentSurvivalModeParameters = new SurvivalModeParameters();
-var CurrentLevelModeParameters = new LevelModeParameters();
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
@@ -1879,6 +1889,7 @@ function createFood(InitDatas, Foods, W, H)
 function showGameMenu (json_params)
 {
 		$("#GameMenu").show("slow");
+		$("#LevelGameText").html("Уровень: " +  CurrentLevelModeParameters.CurrentLevelNumber);
 		$("#GameResult").hide();
 }
 
@@ -1889,11 +1900,17 @@ function showGameResult (json_params)
 		if (json_params.Status == "win")
 		{
 			$("#ResultStatusText").html("Победа!");
-			$("#ResultStatusText").animate({backgroundColor : "#20e80e"}, 1000);
+			$("#ResultStatus").css({backgroundColor : "#20e80e"}, 1000);
 		} else
+		if (json_params.Status == "loss")
 		{
-			$("#ResultStatusText").html("Проигрыш...");
-			$("#ResultStatusText").animate({backgroundColor : "#cc0000"}, 1000);
+			$("#ResultStatusText").html("Проигрыш");
+			$("#ResultStatus").css({backgroundColor : "#cc0000"}, 1000);
+		} else
+		if (json_params.Status == "stayed")
+		{
+			$("#ResultStatusText").html("Результаты");
+			$("#ResultStatus").css({backgroundColor : "#87ceeb"}, 1000);			
 		}
 		
 		$("#RatsKilledResultText").html("Крыс убито: " + json_params.Stats.RatsKilledCounter);
@@ -1979,7 +1996,11 @@ function GameProcess (json_params)
 	if (Foods.length == 0)
 	{
 		clearInterval(gameProcessTimer);
-		showGameResult({"Status" : "loss", "Stats" : gamestats});
+		if (json_params.GameMode == "level")
+			showGameResult({"Status" : "loss", "Stats" : gamestats});
+		else
+			showGameResult({"Status" : "stayed", "Stats" : gamestats});
+
 	} else 
 	if (Foods.length != 0 && FloorHoles.length ==	0 && json_params.GameMode == "level")
 	{
@@ -2085,7 +2106,7 @@ function Game() {
 };	
 
 //showGameMenu();
-showGameResult({"Status" : "win", "Stats" : gamestats});
+showGameResult({"Status" : "loss", "Stats" : gamestats});
 
 </script>
 
