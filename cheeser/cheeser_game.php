@@ -25,7 +25,7 @@
 	</div>
 	<div id="SurvivalGame">
 		<div id="SurvivalGameText" class="Text">
-		Выживание
+		...Выживание...
 		</div>
 	</div>
 	<div id="LevelGame">
