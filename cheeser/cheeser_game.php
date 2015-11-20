@@ -9,8 +9,8 @@
 </head>
 
 <body>	
-<img width = "20" height = "35" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
-<img width = "20" height = "35" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
+<img width = "25" height = "44" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
+<img width = "25" height = "44" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
 <img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
 <img width = "40" height = "35" id="FloorHoleRepaired_img" src="../games_resources/Cheeser/images/floor_hole_repaired.png" />
 <img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
@@ -261,8 +261,14 @@ _GameStats.prototype.updateDivs = function ()
 	this.RatsKilledDiv.innerHTML = "Крыс убито: " + this.RatsKilledCounter;
 	this.FoodsDiv.innerHTML = "Пищи осталось: " + this.FoodsCounter;
 	this.FloorHolesDiv.innerHTML = "Дыр в полу: " + this.FloorHolesCounter;
-	this.TimerDiv.innerHTML = "Время: " + this.Timer;
+	this.TimerDiv.innerHTML = "Время: " + this.getTime(this.Timer);
 }
+
+_GameStats.prototype.getTime = function (Value)
+{
+		return ((this.Timer - (this.Timer %60)) / 60 + ":" + (this.Timer % 60));
+}
+
 
 _GameStats.prototype.increaseRatsKilledCounter = function () 
 {
@@ -1914,7 +1920,7 @@ function showGameResult (json_params)
 		}
 		
 		$("#RatsKilledResultText").html("Крыс убито: " + json_params.Stats.RatsKilledCounter);
-		$("#TimeResultText").html("Время: " + json_params.Stats.Timer);
+		$("#TimeResultText").html("Время: " + json_params.Stats.getTime(json_params.Stats.Timer));
 		$("#GameResult").show("slow");
 		$("#RestartButton").on("click", function () {
 			$("#GameResult").hide("slow");
