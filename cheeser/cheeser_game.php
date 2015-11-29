@@ -1,3 +1,8 @@
+<?php 
+	session_start();
+	$_SESSION["vk_cheeser"]["true_connection"] = "true";
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -207,7 +212,7 @@ _GameTimer.prototype.set = function (json_params)
 function _GameStats () { // статистика!
 		this.Div = document.createElement("div");
 		this.Div.setAttribute("id", "GameStats");
-		this.Div.style.position = "absolute";
+		this.Div.style.position = "fixed";
 		this.Div.style.left = "0px";
 		this.Div.style.top = "0px";
 		this.Div.style.width = W + "px";
@@ -1939,7 +1944,6 @@ function showGameResult (json_params)
 // если вся пища съедена - конец игры
 function GameProcess (json_params)
 {
-	console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	gamestats.increaseTimer(gamestats.FPS);
 	gamestats.updateDivs();
 	

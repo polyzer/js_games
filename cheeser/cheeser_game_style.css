@@ -16,6 +16,8 @@ body img
 #GameStats
 {
 	text-align: center;
+	position: fixed;
+	z-index: 2000;
 }
 
 #GameMenu
