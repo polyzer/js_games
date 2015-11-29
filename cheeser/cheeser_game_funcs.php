@@ -42,7 +42,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 		if ($res->num_rows != 0){
 			$row = $res->fetch_assoc();			
 			foreach($row as $key => $value) {
-				$return_string .= $key."===".$value."&&&";
+				$result_arr["result_datas"]["user_results"][$key] = $value;
 			}
 			$result_arr["server_answer"] = "YES_DATA";
 			echo $return_string;
@@ -52,38 +52,52 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	}
 	
 		
-	if ($datas["Operation"] === "save_test_result") {
-		$first_column = $_POST["first_column"];
-		$second_column = $_POST["second_column"];
-		$third_column = $_POST["third_column"];//Сделать преобразование $_POST
-		$fourth_column = $_POST["fourth_column"];
-		$time_date = date("Y-m-d H:i:s");
-		$vk_id = $_POST["vk_id"];
-		$query_string = "INSERT INTO `results` (`result_id`,
-												   `first_column`,
-												   `second_column`,
-												   `third_column`,
-												   `fourth_column`,
-												   `time_date`,
+	if ($datas["Operation"] === "save_result") {
+		if ($res->num_rows != 0){
+			$row = $res->fetch_assoc();			
+			foreach($row as $key => $value) {
+				$result_arr["result_datas"]["user_results"][$key] = $value;
+			}
+			$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
+			if ($mysqli->query($query)) {
+				echo "Данные обновлены!";
+			}
+			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
+			{
+				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
+			} 
+			if ($datas["Time"] > $result_arr["result_datas"]["user_results"]["time_max"])
+			{
+				$query = "UPDATE `results` SET `time_max` = '".$datas["Time"]."';";
+			}
+			if ($datas["Level"] > $result_arr["result_datas"]["user_results"]["level_max"])
+			{
+				$query = "UPDATE `results` SET `level_max` = '".$datas["Level"]."';";
+			} 			 			
+			$result_arr["server_answer"] = "YES_DATA";
+			echo $return_string;
+		} else {
+			$query_string = "INSERT INTO `results` (`id`,
+												   `rats_killed_max`,
+												   `time_max`,
+												   `level_max`,
 												   `vk_id`)
-							   VALUES (NULL, 
-							           '$first_column',
-							           '$second_column',
-							           '$third_column',
-							           '$fourth_column',
-							           '$time_date',
-							           '$vk_id');";
-
+											VALUES (NULL, 
+							           '".$datas["RatsKilled"]."',
+							           '".$datas["Time"]."',
+							           '".$datas["Level"]."',
+							           '".$datas["vk_id"]."');";
+		}
+		
 		if (!($res = $mysqli->query($query_string)))
 			echo $mysqli->error;
 		else {
-			echo "server_answer===Данные сохранены";
+			echo 	$result_arr["server_answer"] = "DATAS_SAVED";;
 		}
 	}
 
-	if ($datas["Operation"] === "get_test_result") {
-		$VKID = $_POST["vk_id"];
-		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$VKID."';");
+	if ($datas["Operation"] === "get_rating_by_num") {
+		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$datas["vk_id"]."';");
 		if ($res->num_rows != 0){
 			$row = $res->fetch_assoc();
 			$return_string = "";
@@ -100,12 +114,6 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	}
 	
 	if ($datas["Operation"] === "update_game_results") {
-		$first_column = $_POST["first_column"];
-		$second_column = $_POST["second_column"];
-		$third_column = $_POST["third_column"];//Сделать преобразование $_POST
-		$fourth_column = $_POST["fourth_column"];
-		$time_date = date("Y-m-d H:i:s");
-		$VKID = $_POST["vk_id"];
 		$query = "UPDATE `results` SET `first_column` = '$first_column',
 										`second_column` = '$second_column',
 										`third_column` = '$third_column',

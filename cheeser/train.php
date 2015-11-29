@@ -30,7 +30,7 @@ var SendDatas = {
 	Operation: null,
 	RatsKilled: null,
 	Time: null,
-	VK_ID: null,
+	vk_id: null,
 	Level: null
 };
 // кодируем данные!
