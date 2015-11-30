@@ -31,7 +31,8 @@ var SendDatas = {
 	RatsKilled: null,
 	Time: null,
 	vk_id: null,
-	Level: null
+	Level: null,
+	RateNum: null
 };
 // кодируем данные!
 SendDatas = "Datas=" + JSON.stringify(SendDatas);

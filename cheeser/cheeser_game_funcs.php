@@ -65,17 +65,26 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
 			{
 				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
+				if ($mysqli->query($query)) {
+					echo "Данные обновлены!";
+				}
 			} 
 			if ($datas["Time"] > $result_arr["result_datas"]["user_results"]["time_max"])
 			{
 				$query = "UPDATE `results` SET `time_max` = '".$datas["Time"]."';";
+				if ($mysqli->query($query)) {
+					echo "Данные обновлены!";
+				}
 			}
 			if ($datas["Level"] > $result_arr["result_datas"]["user_results"]["level_max"])
 			{
 				$query = "UPDATE `results` SET `level_max` = '".$datas["Level"]."';";
+				if ($mysqli->query($query)) {
+					echo "Данные обновлены!";
+				}
 			} 			 			
 			$result_arr["server_answer"] = "YES_DATA";
-			echo $return_string;
+			echo json_encode($result_arr);
 		} else {
 			$query_string = "INSERT INTO `results` (`id`,
 												   `rats_killed_max`,
@@ -92,40 +101,32 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 		if (!($res = $mysqli->query($query_string)))
 			echo $mysqli->error;
 		else {
-			echo 	$result_arr["server_answer"] = "DATAS_SAVED";;
+			$result_arr["server_answer"] = "DATAS_SAVED";;
+			echo json_encode($result_arr);
 		}
 	}
 
 	if ($datas["Operation"] === "get_rating_by_num") {
-		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$datas["vk_id"]."';");
+		$res = $mysqli->query("SELECT * FROM `results` ORDER BY `rats_killed_max` LIMIT ".$datas["RateNum"]." ;");
 		if ($res->num_rows != 0){
-			$row = $res->fetch_assoc();
-			$return_string = "";
-			foreach($row as $key => $value) {
-				$return_string .= $key."===".$value."&&&";
+			$i = 0;
+			while($row = $res->fetch_assoc())
+			{
+				foreach($row as $key => $value) {
+					// добавляем новую запись в массив
+					$result_arr["result_datas"]["best_rating"][$i] = array();
+					 $result_arr["result_datas"]["best_rating"][$i][$key] = $value;
+				}
+				// увеличиваем счетчик!
+				$i++;
 			}
-			$return_string .= "server_answer===YES_DATA&&&";
-			echo $return_string;
+			$result_arr["server_answer"] = "HAVE_RATING";
+			echo json_encode($return_string);
 		} else {
-			echo "server_answer===NO_DATA&&&";
+			$result_arr["server_answer"] = "HAVE_NO_RATING";	
+			echo json_encode($result_arr);
 		}
-		
-		
 	}
-	
-	if ($datas["Operation"] === "update_game_results") {
-		$query = "UPDATE `results` SET `first_column` = '$first_column',
-										`second_column` = '$second_column',
-										`third_column` = '$third_column',
-										`fourth_column` = '$fourth_column',
-										`time_date` = '$time_date'
-									WHERE `vk_id` = $VKID;";
-		if ($mysqli->query($query)) {
-			echo "Данные обновлены!";
-		}
-	
-	}
-	
 	
 	
 
