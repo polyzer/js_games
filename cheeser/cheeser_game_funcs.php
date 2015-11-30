@@ -5,8 +5,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
    ) 
 {
 	// присланные AJAX данные
-	$datas = addslashes($_POST["Datas"]);
-	
+	$datas = json_decode($_POST["Datas"], true);
 	// ассоциативный массив, который будет преобразован в JSON объект и возвращен через echo
 	$result_arr = array();
 	// ответ сервера - есть данные, или нет!
@@ -20,10 +19,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	// $result_arr["result_datas"]["best_rating"]["1"]["rats_killed"] = 10;
 	// $result_arr["result_datas"]["best_rating"]["1"]["time"] = 10;
 	// $result_arr["result_datas"]["best_rating"]["1"]["vk_id"] = id23497976;
-	$result_arr["result_datas"]["best_rating"] = array();
-	
-	echo json_encode($result_arr);
-	
+	$result_arr["result_datas"]["best_rating"] = array();	
 	
 	$mysqli = new mysqli("localhost", //адрес хоста БД
 						 "root", // имя пользователя
@@ -37,15 +33,15 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	}
 	
 	
-	if ($datas["Operation"] === "get_my_results") {
-		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`=".$datas["VK_ID"].";");
+	if ($datas["Operation"] === "get_result_by_vk_id") {
+		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$datas["vk_id"]."';");
 		if ($res->num_rows != 0){
 			$row = $res->fetch_assoc();			
 			foreach($row as $key => $value) {
 				$result_arr["result_datas"]["user_results"][$key] = $value;
 			}
 			$result_arr["server_answer"] = "YES_DATA";
-			echo $return_string;
+			echo json_encode($result_arr);
 		} else {
 			$result_arr["server_answer"] = "NO_DATA";
 		}
@@ -53,6 +49,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	
 		
 	if ($datas["Operation"] === "save_result") {
+		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$datas["vk_id"]."';");
 		if ($res->num_rows != 0){
 			$row = $res->fetch_assoc();			
 			foreach($row as $key => $value) {
@@ -60,30 +57,29 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			}
 			$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
 			if ($mysqli->query($query)) {
-				echo "Данные обновлены!";
+					$result_arr["server_answer"] = "DATAS_UPDATED!";
 			}
 			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
 			{
 				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
 				if ($mysqli->query($query)) {
-					echo "Данные обновлены!";
+					$result_arr["server_answer"] = "DATAS_UPDATED!";
 				}
 			} 
 			if ($datas["Time"] > $result_arr["result_datas"]["user_results"]["time_max"])
 			{
 				$query = "UPDATE `results` SET `time_max` = '".$datas["Time"]."';";
 				if ($mysqli->query($query)) {
-					echo "Данные обновлены!";
+					$result_arr["server_answer"] = "DATAS_UPDATED!";
 				}
 			}
 			if ($datas["Level"] > $result_arr["result_datas"]["user_results"]["level_max"])
 			{
 				$query = "UPDATE `results` SET `level_max` = '".$datas["Level"]."';";
 				if ($mysqli->query($query)) {
-					echo "Данные обновлены!";
+					$result_arr["server_answer"] = "DATAS_UPDATED!";
 				}
 			} 			 			
-			$result_arr["server_answer"] = "YES_DATA";
 			echo json_encode($result_arr);
 		} else {
 			$query_string = "INSERT INTO `results` (`id`,
@@ -96,13 +92,12 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 							           '".$datas["Time"]."',
 							           '".$datas["Level"]."',
 							           '".$datas["vk_id"]."');";
-		}
-		
 		if (!($res = $mysqli->query($query_string)))
 			echo $mysqli->error;
 		else {
 			$result_arr["server_answer"] = "DATAS_SAVED";;
 			echo json_encode($result_arr);
+		}
 		}
 	}
 

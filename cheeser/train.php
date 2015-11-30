@@ -27,12 +27,12 @@ function doRequest (SendDatas)
 }	
 	
 var SendDatas = {
-	Operation: null,
-	RatsKilled: null,
-	Time: null,
-	vk_id: null,
-	Level: null,
-	RateNum: null
+	Operation: "get_result_by_vk_id",
+	RatsKilled: 11,
+	Time: 19,
+	vk_id: "id43578832",
+	Level: 4,
+	RateNum: 10
 };
 // кодируем данные!
 SendDatas = "Datas=" + JSON.stringify(SendDatas);
