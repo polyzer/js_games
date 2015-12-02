@@ -10,17 +10,47 @@
 	<title>Cheeser! Kill rats!</title>
 	<script src='../../libs/konva.js'></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//vk.com/js/api/xd_connection.js?2"  type="text/javascript"></script>
+
 	<link rel="stylesheet" type="text/css" href="./cheeser_game_style.css" />
 </head>
 
 <body>	
-<img width = "25" height = "44" id="Rat_img" src="../games_resources/Cheeser/images/rat.png" />
-<img width = "25" height = "44" id="RatDead_img" src="../games_resources/Cheeser/images/rat_dead.png" />
-<img width = "40" height = "35" id="FloorHole_img" src="../games_resources/Cheeser/images/floor_hole.png" />
-<img width = "40" height = "35" id="FloorHoleRepaired_img" src="../games_resources/Cheeser/images/floor_hole_repaired.png" />
-<img width = "20" height = "30" id="Hammer_img" src="../games_resources/Cheeser/images/hammer.png" />
-<img width = "20" height = "15" id="Cheese_img" src="../games_resources/Cheeser/images/cheese.png" />	
-<img width = "15" height = "10" id="Crumbs_img" src="../games_resources/Cheeser/images/crumbs.png" />	
+<img width = "25" height = "44" id="Rat_img" class="hidden_imgs" src="../games_resources/Cheeser/images/rat.png" />
+<img width = "25" height = "44" id="RatDead_img" class="hidden_imgs" src="../games_resources/Cheeser/images/rat_dead.png" />
+<img width = "40" height = "35" id="FloorHole_img" class="hidden_imgs" src="../games_resources/Cheeser/images/floor_hole.png" />
+<img width = "40" height = "35" id="FloorHoleRepaired_img" class="hidden_imgs" src="../games_resources/Cheeser/images/floor_hole_repaired.png" />
+<img width = "20" height = "30" id="Hammer_img" class="hidden_imgs" src="../games_resources/Cheeser/images/hammer.png" />
+<img width = "20" height = "15" id="Cheese_img" class="hidden_imgs" src="../games_resources/Cheeser/images/cheese.png" />	
+<img width = "15" height = "10" id="Crumbs_img" class="hidden_imgs" src="../games_resources/Cheeser/images/crumbs.png" />	
+
+<div id="GameRating">
+	<table>
+		<tr>
+			<td>№</td>
+			<td>Аватар</td>
+			<td>Имя</td>
+			<td><img width="25" height="44" src="../games_resources/Cheeser/images/rat_dead.png" /></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>Аватар</td>
+			<td>Владимир</td>
+			<td>19</td>
+			<td></td>
+		</tr>	
+		<tr>
+			<td>2</td>
+			<td>Аватар</td>
+			<td>Максим</td>
+			<td>50</td>
+			<td></td>
+		</tr>	
+
+	</table>
+</div>
+
 
 <div id="GameMenu">
 	<div id="GameHeader">
@@ -371,6 +401,7 @@ function _Rat (json_params)
 		this.Image().rotation(3/2 * 180);
 		this.Layer().add(this.Image());
 		this.Image().RatObj = this;
+		/// возможно здесь косяк!!!
 		this.Image().on('click', function (event) {
 			event.target.RatObj.onClick({"Weapon" : Weapon});
 		});
@@ -2115,12 +2146,26 @@ function Game() {
 	}, gamestats.FPS * 1000);	
 };	
 
-//showGameMenu();
-showGameResult({"Status" : "loss", "Stats" : gamestats});
+showGameMenu();
+//showGameResult({"Status" : "loss", "Stats" : gamestats});
+
+	
+function VK_VARS() {
+	this.user_id = "0";
+	answr = location.search;
+	answr = answr.split("&");
+	for (var i = 0; i < answr.length; i++) {
+		answr[i] = answr[i].split('=');//Создание двумерного массива
+		this[answr[i][0]] = answr[i][1];//Создание объекта, со свойствами двумерного массива.
+	}
+	if (this.user_id == 0) {
+		this.user_id = this.viewer_id;
+	}
+};
+
+var MyVK = new VK_VARS();
+
 
 </script>
-
-
 </body>
-
 </html>

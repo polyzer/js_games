@@ -8,9 +8,17 @@ body
 	font-family: Verdana;	
 }
 
-body img
+.hidden_imgs
 {
 	display: none;
+}
+
+#GameRating
+{
+	position: absolute;
+	top: 150px;
+	left: 150px;
+	
 }
 
 #GameStats
@@ -23,8 +31,8 @@ body img
 #GameMenu
 {
 	position: absolute;
-	left: 20%;
-	top: 20%;
+	left: 500px;
+	top: 150px;
 	width: 400px;
 	height: 200px;
 	background: #404d59 url("../games_resources/Cheeser/images/wood_floor_1.png") repeat;

@@ -40,10 +40,10 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			foreach($row as $key => $value) {
 				$result_arr["result_datas"]["user_results"][$key] = $value;
 			}
-			$result_arr["server_answer"] = "YES_DATA";
+			$result_arr["server_answer"] = "HAVE_DATA";
 			echo json_encode($result_arr);
 		} else {
-			$result_arr["server_answer"] = "NO_DATA";
+			$result_arr["server_answer"] = "HAVE_NO_DATA";
 		}
 	}
 	
@@ -57,27 +57,27 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			}
 			$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
 			if ($mysqli->query($query)) {
-					$result_arr["server_answer"] = "DATAS_UPDATED!";
+					$result_arr["server_answer"] = "DATAS_UPDATED";
 			}
 			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
 			{
 				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."';";
 				if ($mysqli->query($query)) {
-					$result_arr["server_answer"] = "DATAS_UPDATED!";
+					$result_arr["server_answer"] = "DATA_UPDATED";
 				}
 			} 
 			if ($datas["Time"] > $result_arr["result_datas"]["user_results"]["time_max"])
 			{
 				$query = "UPDATE `results` SET `time_max` = '".$datas["Time"]."';";
 				if ($mysqli->query($query)) {
-					$result_arr["server_answer"] = "DATAS_UPDATED!";
+					$result_arr["server_answer"] = "DATA_UPDATED";
 				}
 			}
 			if ($datas["Level"] > $result_arr["result_datas"]["user_results"]["level_max"])
 			{
 				$query = "UPDATE `results` SET `level_max` = '".$datas["Level"]."';";
 				if ($mysqli->query($query)) {
-					$result_arr["server_answer"] = "DATAS_UPDATED!";
+					$result_arr["server_answer"] = "DATA_UPDATED";
 				}
 			} 			 			
 			echo json_encode($result_arr);
@@ -95,7 +95,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 		if (!($res = $mysqli->query($query_string)))
 			echo $mysqli->error;
 		else {
-			$result_arr["server_answer"] = "DATAS_SAVED";;
+			$result_arr["server_answer"] = "DATA_SAVED";;
 			echo json_encode($result_arr);
 		}
 		}
@@ -116,7 +116,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 				$i++;
 			}
 			$result_arr["server_answer"] = "HAVE_RATING";
-			echo json_encode($return_string);
+			echo json_encode($result_arr);
 		} else {
 			$result_arr["server_answer"] = "HAVE_NO_RATING";	
 			echo json_encode($result_arr);
