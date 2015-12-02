@@ -10,15 +10,24 @@
 
 <body>
 <script>
+// тексты запросов:
+// get_result_by_vk_id
+// save_result
+// get_rating_by_num
+
 
 var xmlhttp;	
+var SendDatas;
 	
 function setRating(json_params_string)
 {
 	var ServerAnswerDatas = JSON.parse(json_params_string);
 	if (ServerAnswerDatas.server_answer == "HAVE_RATING")
 	{
-		window.alert(ServerAnswerDatas.server_answer);
+		console.log(ServerAnswerDatas.result_datas.user_results.vk_id);
+	} else
+	{
+		console.log(ServerAnswerDatas.server_answer);
 	}
 }
 
@@ -27,7 +36,10 @@ function setResults(json_params_string)
 	var ServerAnswerDatas = JSON.parse(json_params_string);
 	if (ServerAnswerDatas.server_answer == "HAVE_DATA")
 	{
-		window.alert(ServerAnswerDatas.server_answer);		
+		console.log(ServerAnswerDatas.result_datas.user_results.vk_id);
+	} else
+	{
+		console.log(ServerAnswerDatas.server_answer);
 	}
 }
 
@@ -38,12 +50,25 @@ function saveResults(json_params_string)
 	if (ServerAnswerDatas.server_answer == "DATA_UPDATED" || 
 			ServerAnswerDatas.server_answer == "DATA_SAVED")
 	{
-			window.alert(ServerAnswerDatas.server_answer);
+		console.log(ServerAnswerDatas.server_answer);
+	} else
+	{
+		console.log(ServerAnswerDatas.server_answer);
 	}
 }
 
-function getRatingRequest(SendDatas)
+function getRatingRequest()
 {
+	SendDatas = {
+		Operation: "get_rating_by_num",
+		RatsKilled: 11,
+		Time: 19,
+		vk_id: "id4357883",
+		Level: 4,
+		RateNum: 10
+	};
+	// кодируем показания для передачи
+	SendDatas = "Datas=" + JSON.stringify(SendDatas);
 	doRequest(function() {
 		if (xmlhttp.readyState == 4) {
 			 if(xmlhttp.status == 200) {
@@ -56,6 +81,16 @@ function getRatingRequest(SendDatas)
 
 function getResultsRequest(SendDatas)
 {
+	SendDatas = {
+		Operation: "get_result_by_vk_id",
+		RatsKilled: 11,
+		Time: 19,
+		vk_id: "id43578832342",
+		Level: 4,
+		RateNum: 10
+	};
+	// кодируем показания для передачи
+	SendDatas = "Datas=" + JSON.stringify(SendDatas);
 	doRequest(function() {
 		if (xmlhttp.readyState == 4) {
 			 if(xmlhttp.status == 200) {
@@ -67,6 +102,17 @@ function getResultsRequest(SendDatas)
 }
 function saveResultsRequest(SendDatas)
 {
+	// снимаем показания!
+	SendDatas = {
+		Operation: "save_result",
+		RatsKilled: 33,
+		Time: 33,
+		vk_id: "id43578834",
+		Level: 5,
+		RateNum: 10
+	};
+	// кодируем показания для передачи
+	SendDatas = "Datas=" + JSON.stringify(SendDatas);
 	doRequest(function() {
 		if (xmlhttp.readyState == 4) {
 			 if(xmlhttp.status == 200) {
@@ -87,18 +133,8 @@ function doRequest (onFunction, SendDatas)
 	
 }	
 	
-var SendDatas = {
-	Operation: "get_result_by_vk_id",
-	RatsKilled: 11,
-	Time: 19,
-	vk_id: "id43578832",
-	Level: 4,
-	RateNum: 10
-};
-// кодируем данные!
-SendDatas = "Datas=" + JSON.stringify(SendDatas);
+saveResultsRequest();
 
-getResultsRequest(SendDatas);
 
 </script>
 </body>
