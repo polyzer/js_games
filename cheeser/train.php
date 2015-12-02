@@ -24,7 +24,7 @@ function setRating(json_params_string)
 	var ServerAnswerDatas = JSON.parse(json_params_string);
 	if (ServerAnswerDatas.server_answer == "HAVE_RATING")
 	{
-		console.log(ServerAnswerDatas.result_datas.user_results.vk_id);
+		console.log(ServerAnswerDatas.result_datas.best_rating[2].vk_id);
 	} else
 	{
 		console.log(ServerAnswerDatas.server_answer);
@@ -72,7 +72,7 @@ function getRatingRequest()
 	doRequest(function() {
 		if (xmlhttp.readyState == 4) {
 			 if(xmlhttp.status == 200) {
-				saveResults(xmlhttp.responseText);
+				setRating(xmlhttp.responseText);
 			 }
 		}
 	},
@@ -105,10 +105,10 @@ function saveResultsRequest(SendDatas)
 	// снимаем показания!
 	SendDatas = {
 		Operation: "save_result",
-		RatsKilled: 31,
-		Time: 31,
-		vk_id: "id43578834",
-		Level: 4,
+		RatsKilled: 37,
+		Time: 35,
+		vk_id: "id435788341",
+		Level: 8,
 		RateNum: 10
 	};
 	// кодируем показания для передачи
@@ -133,7 +133,7 @@ function doRequest (onFunction, SendDatas)
 	
 }	
 	
-saveResultsRequest();
+getRatingRequest();
 
 
 </script>

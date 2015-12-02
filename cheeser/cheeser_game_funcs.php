@@ -56,9 +56,9 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			foreach($row as $key => $value) {
 				$result_arr["result_datas"]["user_results"][$key] = $value;
 			}
-			if ($mysqli->query($query)) {
-					$result_arr["server_answer"] = "DATA_UPDATED";
-			}
+////////////////// проверка!!!!!!!!!!!!!!!!!!!
+			/// устанавливаем значение по-умолчанию!
+			$result_arr["server_answer"] = "NO_DATA_SAVE/UPDATES";
 			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
 			{
 				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."' WHERE `vk_id`='".$datas["vk_id"]."';";
@@ -102,7 +102,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	}
 
 	if ($datas["Operation"] === "get_rating_by_num") {
-		$res = $mysqli->query("SELECT * FROM `results` ORDER BY `rats_killed_max` LIMIT ".$datas["RateNum"]." ;");
+		$res = $mysqli->query("SELECT * FROM `results` ORDER BY `rats_killed_max` DESC LIMIT ".$datas["RateNum"]." ;");
 		if ($res->num_rows != 0){
 			$i = 0;
 			while($row = $res->fetch_assoc())
