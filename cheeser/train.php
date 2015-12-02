@@ -105,10 +105,10 @@ function saveResultsRequest(SendDatas)
 	// снимаем показания!
 	SendDatas = {
 		Operation: "save_result",
-		RatsKilled: 33,
-		Time: 33,
+		RatsKilled: 31,
+		Time: 31,
 		vk_id: "id43578834",
-		Level: 5,
+		Level: 4,
 		RateNum: 10
 	};
 	// кодируем показания для передачи

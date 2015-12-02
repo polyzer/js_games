@@ -56,7 +56,6 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			foreach($row as $key => $value) {
 				$result_arr["result_datas"]["user_results"][$key] = $value;
 			}
-			$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."' WHERE `vk_id`='".$datas["vk_id"]."';";
 			if ($mysqli->query($query)) {
 					$result_arr["server_answer"] = "DATA_UPDATED";
 			}
