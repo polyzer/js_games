@@ -25,7 +25,7 @@
 <img width = "15" height = "10" id="Crumbs_img" class="hidden_imgs" src="../games_resources/Cheeser/images/crumbs.png" />	
 
 <div id="GameRating">
-	<table>
+	<table id="GameRatingTable">
 		<tr>
 			<td>№</td>
 			<td>Аватар</td>
@@ -35,11 +35,75 @@
 		</tr>
 		<tr>
 			<td>1</td>
-			<td>Аватар</td>
-			<td>Владимир</td>
-			<td>19</td>
-			<td></td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
 		</tr>	
+		<tr>
+			<td>2</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>3</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>4</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>5</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>6</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>7</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>8</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>9</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+		<tr>
+			<td>10</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+			<td>............</td>
+		</tr>	
+
 	</table>
 </div>
 
@@ -113,6 +177,7 @@
 	var SendDatas;
 	// данные ВК
 	var MyVK;
+	
 
 function VK_VARS() {
 	this.user_id = "0";
@@ -132,11 +197,11 @@ function VK_VARS() {
 
 function setRating(json_params_string)
 {
-	window.alert(json_params_string);
+//	window.alert(json_params_string);
+	console.log(json_params_string);
 	var ServerAnswerDatas = JSON.parse(json_params_string);
 	if (ServerAnswerDatas.server_answer == "HAVE_RATING")
 	{
-		console.log(ServerAnswerDatas.result_datas.best_rating[0].vk_id);
 		ids_str = "";
 		for(var i = 0; i < ServerAnswerDatas.result_datas.best_rating.length; i++)
 		{
@@ -149,10 +214,17 @@ function setRating(json_params_string)
 				ids_str += "" + ServerAnswerDatas.result_datas.best_rating[i].vk_id + ",";
 			}
 		}
-		window.alert(ids_str);
-		VK.api("users.get", {"user_ids": ids_str}, function (data) {
+		VK.api("users.get", {"user_ids": ids_str, "fields": "photo_50"}, function (data) {
 			// действия с полученными данными
-			window.alert(data.response[0].first_name);
+			GetsObj = document.getElementById("GameRatingTable");
+			for (var i = 0; i < data.response.length; i++)
+			{
+				GetsObj.children[0].children[i+1].children[0].innerHTML = i+1;
+				GetsObj.children[0].children[i+1].children[1].innerHTML = "<a href='http://vk.com/id" + data.response[i].id +"'><img src='" + data.response[i].photo_50 + "' /></a>";
+				GetsObj.children[0].children[i+1].children[2].innerHTML = data.response[i].first_name;
+				GetsObj.children[0].children[i+1].children[3].innerHTML = ServerAnswerDatas.result_datas.best_rating[i].rats_killed_max;
+				GetsObj.children[0].children[i+1].children[4].innerHTML = gamestats.getTime(ServerAnswerDatas.result_datas.best_rating[i].time_max);
+			}
 		});
 	} else
 	{
@@ -160,14 +232,14 @@ function setRating(json_params_string)
 	}
 }
 
-function setResults(json_params_string, curLevModPar)
+function setResults(json_params_string)
 {
 	var ServerAnswerDatas = JSON.parse(json_params_string);
 	if (ServerAnswerDatas.server_answer == "HAVE_DATA")
 	{
-		console.log(ServerAnswerDatas.result_datas.user_results.vk_id);
-		/// здесь могут быть косяки!
-		curLevModPar.CurrentLevelNumber = ServerAnswerDatas.result_datas.user_results.level_max;
+		/// здесь могут быть косяки!		
+		CurrentLevelModeParameters.CurrentLevelNumber = ServerAnswerDatas.result_datas.user_results.level_max;
+		
 	} else
 	{
 		console.log(ServerAnswerDatas.server_answer);
@@ -209,18 +281,25 @@ function getRatingRequest()
 function getResultsRequest(json_params)
 {
 	SendDatas = {
-		Operation: "get_result_by_vk_id"
+		Operation: "get_result_by_vk_id",
+		vk_id: json_params.MyVK.user_id
 	};
 	// кодируем показания для передачи
 	SendDatas = "Datas=" + JSON.stringify(SendDatas);
-	doRequest(function() {
-		if (xmlhttp.readyState == 4) {
-			 if(xmlhttp.status == 200) {
-				setResults(xmlhttp.responseText, CurrentLevelModeParameters);
+	
+	xmlhttp1 = new XMLHttpRequest();
+	xmlhttp1.open('POST', './cheeser_game_funcs.php', false);
+	xmlhttp1.onreadystatechange = function () {
+		if (xmlhttp1.readyState == 4) {
+			 if(xmlhttp1.status == 200) {
+				setResults(xmlhttp1.responseText);
 			 }
 		}
-	},
-	SendDatas);
+
+	};
+	xmlhttp1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xmlhttp1.send(SendDatas);
+
 }
 
 // передавать
@@ -450,8 +529,20 @@ _GameStats.prototype.updateDivs = function ()
 }
 
 _GameStats.prototype.getTime = function (Value)
-{
-		return ((this.Timer - (this.Timer %60)) / 60 + ":" + (this.Timer % 60));
+{		if (Value !== undefined)
+		{
+			minutes = ((Value - (Value %60)) / 60);
+			seconds = (Value % 60);
+			if(minutes < 10)
+				minutes = "0" + minutes;
+			if (seconds < 10)
+				seconds = "0" + seconds;
+			return (minutes + ":" + seconds);
+		}
+		else
+		{
+			return ((this.Timer - (this.Timer %60)) / 60 + ":" + (this.Timer % 60));
+		}
 }
 
 
@@ -2066,12 +2157,14 @@ function createFood(InitDatas, Foods, W, H)
 // должна быть только один раз!
 		$("#SurvivalGame").on("click", function () {
 			$("#GameMenu").hide();
+			$("#GameRating").hide();
 			GAMEMODE = "survival";
 			gamestats.clearStats();
 			Game();
 		});
 		$("#LevelGame").on("click", function () {
 			$("#GameMenu").hide();
+			$("#GameRating").hide();
 			GAMEMODE = "level";
 			gamestats.clearStats();
 			Game();
@@ -2083,6 +2176,7 @@ function showGameMenu (json_params)
 		
 		getRatingRequest();
 		$("#GameMenu").show("slow");
+		$("#GameRating").show("slow");
 		$("#LevelGameText").html("Уровень: " +  CurrentLevelModeParameters.CurrentLevelNumber);
 		$("#GameResult").hide();
 }
@@ -2309,15 +2403,17 @@ function Game() {
 //showGameResult({"Status" : "loss", "Stats" : gamestats});
 
 	
-
   VK.init(function() { 
      // API initialization succeeded 
      // Your code here 
-     VK_initialised = true;    
+    VK_initialised = true;    
     var app_id = 4766007;
-		getResultsRequest();
-		showGameMenu({"Stats" : gamestats});
-
+		
+		VK.api("users.get", {"access_token" : MyVK.access_token}, function (data) {
+			MyVK.user_id = data.response[0].id;
+			getResultsRequest({"MyVK" : MyVK});
+			showGameMenu({"Stats" : gamestats});
+		});
 //    var a=new VKAdman();
 //   a.onNoAds(function(){console.log("Adman has no ads")});
 //   a.setupPreroll(app_id);

@@ -5,7 +5,7 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
    ) 
 {
 	// присланные AJAX данные
-	$datas = json_decode($_POST["Datas"], true);
+	$datas = json_decode(stripslashes($_POST["Datas"]), true);
 	// ассоциативный массив, который будет преобразован в JSON объект и возвращен через echo
 	$result_arr = array();
 	// ответ сервера - есть данные, или нет!
@@ -20,7 +20,9 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	// $result_arr["result_datas"]["best_rating"]["1"]["time"] = 10;
 	// $result_arr["result_datas"]["best_rating"]["1"]["vk_id"] = id23497976;
 	$result_arr["result_datas"]["best_rating"] = array();	
-	
+	//user    : host1302305
+	//password: 54c8b5d4
+
 	$mysqli = new mysqli("localhost", //адрес хоста БД
 						 "root", // имя пользователя
 						 "000000", //пароль
@@ -31,7 +33,6 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 	} else {
 		$mysqli->set_charset("utf8");
 	}
-	
 	
 	if ($datas["Operation"] === "get_result_by_vk_id") {
 		$res = $mysqli->query("SELECT * FROM `results` WHERE `vk_id`='".$datas["vk_id"]."';");
@@ -59,9 +60,10 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 ////////////////// проверка!!!!!!!!!!!!!!!!!!!
 			/// устанавливаем значение по-умолчанию!
 			$result_arr["server_answer"] = "NO_DATA_SAVE/UPDATES";
-			if ($datas["RatsKilled"] > $result_arr["result_datas"]["user_results"]["rats_killed_max"])
+			
+			if ($datas["RatsKilled"])
 			{
-				$query = "UPDATE `results` SET `rats_killed_max` = '".$datas["RatsKilled"]."' WHERE `vk_id`='".$datas["vk_id"]."';";
+				$query = "UPDATE `results` SET `rats_killed_max` = '". ((int)$datas["RatsKilled"] + (int)$result_arr["result_datas"]["user_results"]["rats_killed_max"])."' WHERE `vk_id`='".$datas["vk_id"]."';";
 				if ($mysqli->query($query)) {
 					$result_arr["server_answer"] = "DATA_UPDATED";
 				}
@@ -107,14 +109,21 @@ if ($_SESSION["vk_cheeser"]["true_connection"] &&
 			$i = 0;
 			while($row = $res->fetch_assoc())
 			{
-				foreach($row as $key => $value) {
+					$result_arr["result_datas"]["best_rating"][$i] = array();
+					$result_arr["result_datas"]["best_rating"][$i]["id"] = $row["id"];
+					$result_arr["result_datas"]["best_rating"][$i]["rats_killed_max"] = $row["rats_killed_max"];
+					$result_arr["result_datas"]["best_rating"][$i]["time_max"] = $row["time_max"];
+					$result_arr["result_datas"]["best_rating"][$i]["level_max"] = $row["level_max"];
+					$result_arr["result_datas"]["best_rating"][$i]["vk_id"] = $row["vk_id"];					
+/*				foreach($row as $key => $value) {
 					// добавляем новую запись в массив
 					$result_arr["result_datas"]["best_rating"][$i] = array();
-					 $result_arr["result_datas"]["best_rating"][$i][$key] = $value;
+					$result_arr["result_datas"]["best_rating"][$i][$key] = $value;
 				}
+	*/
 				// увеличиваем счетчик!
 				$i++;
-			}
+	}
 			$result_arr["server_answer"] = "HAVE_RATING";
 			echo json_encode($result_arr);
 		} else {

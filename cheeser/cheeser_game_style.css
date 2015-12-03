@@ -17,8 +17,12 @@ body
 {
 	position: absolute;
 	top: 150px;
-	left: 150px;
-	
+	left: 50px;
+	z-index: 1000;
+	display: none;
+	background-color: #fcfaf5;
+	border-top: 5px solid black;
+	border-bottom: 5px solid black;
 }
 
 #GameStats
